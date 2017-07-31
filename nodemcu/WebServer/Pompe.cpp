@@ -1,18 +1,18 @@
-
-class Pompe
-{
-	int pin = 5;
-
-	public: Pompe(void) {
-	}
-
-	void on(void) {
-
-	}
+#include "Pompe.h"
+#include <ESP8266mDNS.h>
 
 
-	void off(void) {
+Pompe::Pompe(void) {
 
-	}
+}
 
-};
+void Pompe::start(void) {
+	digitalWrite(this->pin, HIGH);
+}
+
+
+void Pompe::stop(void) {
+	digitalWrite(this->pin, LOW);
+}
+
+
