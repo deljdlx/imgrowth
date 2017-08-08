@@ -2,10 +2,53 @@
 #include <ESP8266WiFi.h>
 #include <WiFiClient.h>
 #include <ESP8266HTTPClient.h>
+#include <string>
+
+
+#define ONE_WIRE_BUS            D4
+
+
+
+#include <OneWire.h>
+#include "DallasTemperature.h"
+
+
+
+//OneWire oneWire(ONE_WIRE_BUS);
+
 
 Node::Node() {
 
+
+	//this->sensor = DallasTemperature(&oneWire);
+	//this->sensor.begin();
  }
+
+
+
+
+
+
+
+float Node::getTemperature() {
+
+
+	this->sensor.requestTemperatures();
+	Serial.println(this->sensor.getTempCByIndex(0));
+	//return 11.1;
+
+	return this->sensor.getTempCByIndex(0);
+
+}
+
+
+void Node::setSensor(DallasTemperature sensor) {
+	this->sensor=sensor;
+}
+
+
+
+
 
 void Node::wifiConnection(char* ssid, char* password) {
 	// on demande la connexion au WiFi
@@ -25,33 +68,131 @@ void Node::wifiConnection(char* ssid, char* password) {
 
 
 void Node::listen(void) {
-
-  unsigned long currentMillis = millis();
-  int hsol;
-
-
-	//Serial.println("Listening");
-
 	this->server.handleClient();
+	this->checkHumidity();
+	this->ping();
+}
 
 
-  if (currentMillis - previousMillis >= this->interval) {
-    this->previousMillis = currentMillis;
-    hsol = this->getHumidity();
-    Serial.println(hsol);
 
-    if (hsol > 600) {
-    	this->pompe.start();
-    }
-    else {
-    	this->pompe.stop();
-    }
-  }
+
+
+void Node::checkHumidity(void) {
+
+
+	int humidity;
+
+	unsigned long humidityTimer = millis();
+
+	if (humidityTimer - this->previousHumidyTime >= this->configuration.humidyInterval) {
+		this->previousHumidyTime = humidityTimer;
+		humidity = this->getHumidity();
+		Serial.println(humidity);
+
+		if (humidity > 600) {
+			this->pompe.start();
+		}
+		else {
+			this->pompe.stop();
+		}
+	}
+}
+
+
+void Node::ping(void) {
+	unsigned long pingTimer = millis();
+
+	if (pingTimer - this->previousPingTime >= this->configuration.pingInterval) {
+		this->previousPingTime = pingTimer;
+		this->declareServer();
+	}
+}
+
+
+void Node::declareServer(void) {
+	HTTPClient http;
+
+    String declareURL =
+    	this->configuration.declareURL +
+    	"?dataURI="+this->configuration.node_dataURI +
+    	"&nodeVersion="+this->configuration.node_version
+    ;
+
+	http.begin(declareURL);
+
+	int httpCode = http.GET();
+
+	if(httpCode > 0) {
+	// HTTP header has been send and Server response header has been handled
+		Serial.printf("[HTTP] GET... code: %d\n", httpCode);
+
+		// file found at server
+		if(httpCode == 200) {
+			String response = http.getString();
+			Serial.println(response);
+			//this->server.send(200, "text/html", response);
+		}
+	}
+	else {
+		Serial.printf("[HTTP] GET... failed, error: %s\n", http.errorToString(httpCode).c_str());
+	}
+}
+
+
+void Node::http_getData() {
+
+	String humidity = String(this->getHumidity());
+	String temperature = String(this->getTemperature());
+
+	/*
+	String response=String(
+		"{"+
+    		"\"humidity\": \""+humidity+"\""+
+    	"}"
+    );
+    */
+
+	String response="{";
+
+	response=response+"\"humidity\":";
+	response=response+humidity;
+
+	response=response+",\"temperature\":";
+	response=response+temperature;
+
+
+	response=response+"}";
+
+
+	this->server.send(200, "application/json", response);
 
 }
 
 
+
+
+
+
 void Node::initializeServer(void) {
+
+
+
+	//OneWire oneWire(ONE_WIRE_BUS);
+	//this->sensor=DallasTemperature(&oneWire);
+	//this->sensor.begin();
+	//DallasTemperature sensors(&oneWire);
+	//	sensors.begin();
+
+
+	//this->sensors(&oneWire);
+	//this->sensors.begin();
+
+	this->declareServer();
+
+
+	this->server.on(this->configuration.node_dataURI.c_str(), [this](){
+		return this->http_getData();
+	});
 
 
   this->server.on("/do", [this](){
@@ -87,10 +228,10 @@ void Node::initializeServer(void) {
   this->server.on("/humidity", [this](){
 
 
-    int hsol;
-    hsol = this->getHumidity();
-    Serial.println(hsol);
-    server.send(200, "text/plain", String(hsol));
+    int humidity;
+    humidity = this->getHumidity();
+    Serial.println(humidity);
+    server.send(200, "text/plain", String(humidity));
 
     /*
     if(hsol>600) {
@@ -105,16 +246,21 @@ void Node::initializeServer(void) {
 
   this->server.on("/on", [this](){
 
+
+	Serial.println("on");
+	server.send(200, "text/plain", "ON");
   	/*
     digitalWrite(pompePin, HIGH);
     server.send(200, "text/plain", "ON");
-    Serial.println("on");
+
     */
 
   });
 
 
   this->server.on("/off", [this](){
+
+	Serial.println("off");
 
   /*
     int hsol;
