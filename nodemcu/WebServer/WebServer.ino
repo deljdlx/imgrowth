@@ -32,6 +32,15 @@ int pompeState = LOW;
 const int PinAnalogiqueHumidite = 0;
 
 
+
+
+const int ledPin = 13;
+int ledState = LOW;
+
+
+
+
+
 Node node;
 
 
@@ -77,6 +86,9 @@ void initialize(void) {
 
 void setup(void) {
   initialize();
+
+  pinMode(ledPin, OUTPUT);
+
 }
 
 
@@ -86,6 +98,16 @@ unsigned long previousMillis = 0;
 
 void loop(void) {
 
+
+    if (ledState == LOW) {
+      ledState = HIGH;
+    } else {
+      ledState = LOW;
+    }
+
+    ledState = HIGH;
+
+	digitalWrite(ledPin, ledState);
 
 
 

@@ -20,13 +20,11 @@
 
 
 Node::Node() {
-	//this->lightSensor= Adafruit_TSL2561_Unified(TSL2561_ADDR_FLOAT, 12345);
-
+	this->lightSensor= Adafruit_TSL2561_Unified(TSL2561_ADDR_FLOAT, 12345);
 	this->lightSensor.enableAutoRange(true);            /* Auto-gain ... switches automatically between 1x and 16x */
-
 	/* Changing the integration time gives you better sensor resolution (402ms = 16-bit data) */
-	this->lightSensor.setIntegrationTime(TSL2561_INTEGRATIONTIME_13MS);      /* fast but low resolution */
-	// tsl.setIntegrationTime(TSL2561_INTEGRATIONTIME_101MS);  /* medium resolution and speed   */
+	//this->lightSensor.setIntegrationTime(TSL2561_INTEGRATIONTIME_13MS);      /* fast but low resolution */
+	this->lightSensor.setIntegrationTime(TSL2561_INTEGRATIONTIME_101MS);  /* medium resolution and speed   */
 	// tsl.setIntegrationTime(TSL2561_INTEGRATIONTIME_402MS);  /* 16-bit data but slowest conversions */
 
 
@@ -58,6 +56,32 @@ float Node::getTemperature() {
 	return this->temperatureSensor.getTempCByIndex(0);
 
 }
+
+
+
+
+
+
+float Node::getLight(void) {
+
+	sensors_event_t event;
+	this->lightSensor.getEvent(&event);
+
+	/* Display the results (light is measured in lux) */
+	if (event.light) {
+		Serial.print(event.light);
+		Serial.println(" lux");
+		return event.light;
+	}
+	else {
+		return 0;
+	}
+}
+
+
+
+
+
 
 
 void Node::setSensor(DallasTemperature sensor) {
@@ -93,23 +117,6 @@ void Node::listen(void) {
 }
 
 
-
-
-float Node::getLight(void) {
-
-	sensors_event_t event;
-	this->lightSensor.getEvent(&event);
-
-	/* Display the results (light is measured in lux) */
-	if (event.light) {
-		Serial.print(event.light);
-		Serial.println(" lux");
-		return event.light;
-	}
-	else {
-		return 0;
-	}
-}
 
 
 void Node::checkHumidity(void) {
