@@ -11,31 +11,16 @@
 #include <ESP8266WebServer.h>
 
 
-
-#include "Configuration.h"
-#include "Node.h"
-
-
-
-
 #define ONE_WIRE_BUS            D4
 #include <OneWire.h>
 #include "DallasTemperature.h"
 
 
-#include <Wire.h>
-#include <Adafruit_Sensor.h>
-#include <Adafruit_TSL2561_U.h>
 
 
 
-
-OneWire oneWire(ONE_WIRE_BUS);
-DallasTemperature sensor(&oneWire);
-
-
-Adafruit_TSL2561_Unified tsl = Adafruit_TSL2561_Unified(TSL2561_ADDR_FLOAT, 12345);
-
+#include "Configuration.h"
+#include "Node.h"
 
 
 
@@ -50,6 +35,9 @@ const int PinAnalogiqueHumidite = 0;
 Node node;
 
 
+OneWire oneWire(ONE_WIRE_BUS);
+DallasTemperature temperatureSensor(&oneWire);
+
 
 
 
@@ -61,30 +49,7 @@ void initialize(void) {
   Serial.printf("initialize");
 
 
-
-
-
-
-  /* You can also manually set the gain or enable auto-gain support */
-  // tsl.setGain(TSL2561_GAIN_1X);      /* No gain ... use in bright light to avoid sensor saturation */
-  // tsl.setGain(TSL2561_GAIN_16X);     /* 16x gain ... use in low light to boost sensitivity */
-  tsl.enableAutoRange(true);            /* Auto-gain ... switches automatically between 1x and 16x */
-
-  /* Changing the integration time gives you better sensor resolution (402ms = 16-bit data) */
-  tsl.setIntegrationTime(TSL2561_INTEGRATIONTIME_13MS);      /* fast but low resolution */
-  // tsl.setIntegrationTime(TSL2561_INTEGRATIONTIME_101MS);  /* medium resolution and speed   */
-  // tsl.setIntegrationTime(TSL2561_INTEGRATIONTIME_402MS);  /* 16-bit data but slowest conversions */
-
-  /* Update these values depending on what you've set above! */
-  Serial.println("------------------------------------");
-  Serial.print  ("Gain:         "); Serial.println("Auto");
-  Serial.print  ("Timing:       "); Serial.println("13 ms");
-  Serial.println("------------------------------------");
-
-
-
-
-
+	node.initialize();
 
 
   pinMode(PinAnalogiqueHumidite, INPUT);
@@ -95,8 +60,11 @@ void initialize(void) {
     configuration.wifiPassword
   );
 
-  sensor.begin();
-  node.setSensor(sensor);
+
+
+
+  temperatureSensor.begin();
+  node.setSensor(temperatureSensor);
 
 
   node.initializeServer();
@@ -120,13 +88,13 @@ void loop(void) {
 
 
 
-  // a chaque iteration, on appelle handleClient pour que les requetes soient traitees
-  node.listen();
+
+	// a chaque iteration, on appelle handleClient pour que les requetes soient traitees
+	node.listen();
+	node.getLight();
 
 
-
-
-  delay(1000);
+	delay(1000);
 
 
 /*

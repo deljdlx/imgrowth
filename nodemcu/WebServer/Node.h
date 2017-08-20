@@ -17,6 +17,9 @@
 
 
 
+#include <Wire.h>
+#include <Adafruit_Sensor.h>
+#include <Adafruit_TSL2561_U.h>
 
 
 
@@ -33,6 +36,11 @@ class Node
 	Configuration configuration;
 
 
+	Adafruit_TSL2561_Unified lightSensor = Adafruit_TSL2561_Unified(TSL2561_ADDR_FLOAT, 12345);;
+
+
+
+
 
 	int PinAnalogiqueHumidite = 0;
 
@@ -42,7 +50,7 @@ class Node
 
 
 
-	DallasTemperature sensor;
+	DallasTemperature temperatureSensor;
 
 
 	public: Node(void);
@@ -70,9 +78,12 @@ class Node
 
 	public: int getHumidity(void);
 	public: float getTemperature(void);
+	public: float getLight(void);
 
 
 	public: void ping(void);
+
+
 
 
 };

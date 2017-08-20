@@ -6,11 +6,13 @@
 
 
 #define ONE_WIRE_BUS            D4
-
-
-
 #include <OneWire.h>
 #include "DallasTemperature.h"
+
+
+#include "Pompe.h"
+#include "HumiditySensor.h"
+#include "Configuration.h"
 
 
 
@@ -18,12 +20,31 @@
 
 
 Node::Node() {
+	//this->lightSensor= Adafruit_TSL2561_Unified(TSL2561_ADDR_FLOAT, 12345);
+
+	this->lightSensor.enableAutoRange(true);            /* Auto-gain ... switches automatically between 1x and 16x */
+
+	/* Changing the integration time gives you better sensor resolution (402ms = 16-bit data) */
+	this->lightSensor.setIntegrationTime(TSL2561_INTEGRATIONTIME_13MS);      /* fast but low resolution */
+	// tsl.setIntegrationTime(TSL2561_INTEGRATIONTIME_101MS);  /* medium resolution and speed   */
+	// tsl.setIntegrationTime(TSL2561_INTEGRATIONTIME_402MS);  /* 16-bit data but slowest conversions */
 
 
-	//this->sensor = DallasTemperature(&oneWire);
-	//this->sensor.begin();
+
+
  }
 
+
+void Node::initialize(void) {
+	//OneWire oneWire(ONE_WIRE_BUS);
+	//DallasTemperature sensor(&oneWire);
+	//sensor.begin();
+	//this->setSensor(sensor);
+
+	//this->temperatureSensor = DallasTemperature(&oneWire);
+	//this->temperatureSensor.begin();
+  	//node.setSensor(sensor);
+}
 
 
 
@@ -32,18 +53,15 @@ Node::Node() {
 
 float Node::getTemperature() {
 
-
-	this->sensor.requestTemperatures();
-	Serial.println(this->sensor.getTempCByIndex(0));
-	//return 11.1;
-
-	return this->sensor.getTempCByIndex(0);
+	this->temperatureSensor.requestTemperatures();
+	Serial.println(this->temperatureSensor.getTempCByIndex(0));
+	return this->temperatureSensor.getTempCByIndex(0);
 
 }
 
 
 void Node::setSensor(DallasTemperature sensor) {
-	this->sensor=sensor;
+	this->temperatureSensor=sensor;
 }
 
 
@@ -70,11 +88,28 @@ void Node::wifiConnection(char* ssid, char* password) {
 void Node::listen(void) {
 	this->server.handleClient();
 	this->checkHumidity();
+	this->getLight();
 	this->ping();
 }
 
 
 
+
+float Node::getLight(void) {
+
+	sensors_event_t event;
+	this->lightSensor.getEvent(&event);
+
+	/* Display the results (light is measured in lux) */
+	if (event.light) {
+		Serial.print(event.light);
+		Serial.println(" lux");
+		return event.light;
+	}
+	else {
+		return 0;
+	}
+}
 
 
 void Node::checkHumidity(void) {
@@ -143,14 +178,8 @@ void Node::http_getData() {
 
 	String humidity = String(this->getHumidity());
 	String temperature = String(this->getTemperature());
+	String light = String(this->getLight());
 
-	/*
-	String response=String(
-		"{"+
-    		"\"humidity\": \""+humidity+"\""+
-    	"}"
-    );
-    */
 
 	String response="{";
 
@@ -159,6 +188,9 @@ void Node::http_getData() {
 
 	response=response+",\"temperature\":";
 	response=response+temperature;
+
+	response=response+",\"light\":";
+	response=response+light;
 
 
 	response=response+"}";
@@ -176,17 +208,6 @@ void Node::http_getData() {
 void Node::initializeServer(void) {
 
 
-
-	//OneWire oneWire(ONE_WIRE_BUS);
-	//this->sensor=DallasTemperature(&oneWire);
-	//this->sensor.begin();
-	//DallasTemperature sensors(&oneWire);
-	//	sensors.begin();
-
-
-	//this->sensors(&oneWire);
-	//this->sensors.begin();
-
 	this->declareServer();
 
 
@@ -195,66 +216,37 @@ void Node::initializeServer(void) {
 	});
 
 
-  this->server.on("/do", [this](){
-    HTTPClient http;
+	this->server.on("/do", [this](){
+
+	});
 
 
 
+	this->server.on("/humidity", [this](){
 
-    http.begin("http://192.168.0.10/hello.php"); //HTTP
+		int humidity;
+		humidity = this->getHumidity();
+		Serial.println(humidity);
+		server.send(200, "text/plain", String(humidity));
 
-    int httpCode = http.GET();
-
-    if(httpCode > 0) {
-      // HTTP header has been send and Server response header has been handled
-      Serial.printf("[HTTP] GET... code: %d\n", httpCode);
-
-      // file found at server
-      if(httpCode == 200) {
-        String response = http.getString();
-        Serial.println(response);
-        this->server.send(200, "text/html", response);
-      }
-    }
-    else {
-      Serial.printf("[HTTP] GET... failed, error: %s\n", http.errorToString(httpCode).c_str());
-    }
+		/*
+		if(hsol>600) {
+		digitalWrite(pompePin, HIGH);
+		}
+		else {
+		digitalWrite(pompePin, LOW);
+		}
+		*/
+	});
 
 
-  });
-
-
-
-  this->server.on("/humidity", [this](){
-
-
-    int humidity;
-    humidity = this->getHumidity();
-    Serial.println(humidity);
-    server.send(200, "text/plain", String(humidity));
-
-    /*
-    if(hsol>600) {
-      digitalWrite(pompePin, HIGH);
-    }
-    else {
-      digitalWrite(pompePin, LOW);
-    }
-    */
-  });
-
-
-  this->server.on("/on", [this](){
-
-
-	Serial.println("on");
-	server.send(200, "text/plain", "ON");
-  	/*
-    digitalWrite(pompePin, HIGH);
-    server.send(200, "text/plain", "ON");
-
-    */
-
+	this->server.on("/on", [this](){
+		Serial.println("on");
+		server.send(200, "text/plain", "ON");
+		/*
+		digitalWrite(pompePin, HIGH);
+		server.send(200, "text/plain", "ON");
+		*/
   });
 
 
