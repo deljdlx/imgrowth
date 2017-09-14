@@ -34,7 +34,7 @@ const int PinAnalogiqueHumidite = 0;
 
 
 
-const int ledPin = 13;
+const int ledPin = 12;
 int ledState = LOW;
 
 
@@ -61,8 +61,26 @@ void initialize(void) {
 	node.initialize();
 
 
+
+  //pinMode(D9, OUTPUT);
+  //pinMode(D10, OUTPUT);
+
+
+  pinMode(pompePin, OUTPUT);
+
+
   pinMode(PinAnalogiqueHumidite, INPUT);
   pinMode(pompePin, OUTPUT);
+
+
+    pinMode(5, OUTPUT);
+
+
+    //pinMode(13, OUTPUT);
+    //pinMode(15, OUTPUT);
+    //pinMode(3, OUTPUT);
+
+
 
   node.wifiConnection(
     configuration.wifiSSID,
@@ -89,6 +107,18 @@ void setup(void) {
 
   pinMode(ledPin, OUTPUT);
 
+	node.enableInput(0);
+
+	//digitalWrite(15, HIGH);
+	//digitalWrite(3, HIGH);
+
+
+
+
+	//
+	//digitalWrite(8, HIGH);
+
+
 }
 
 
@@ -99,24 +129,40 @@ unsigned long previousMillis = 0;
 void loop(void) {
 
 
-    if (ledState == LOW) {
-      ledState = HIGH;
+
+	Configuration configuration;
+
+
+
+	if (ledState == LOW) {
+		ledState = HIGH;
     } else {
-      ledState = LOW;
+		ledState = LOW;
     }
 
-    ledState = HIGH;
+    //ledState = HIGH;
 
-	digitalWrite(ledPin, ledState);
+	//digitalWrite(ledPin, ledState);
+
+
+	//int input = random(0,7);
+	//Serial.println(input);
 
 
 
 	// a chaque iteration, on appelle handleClient pour que les requetes soient traitees
 	node.listen();
 	node.getLight();
+	node.getTemperature();
+	node.getHumidity();
 
 
-	delay(1000);
+
+
+
+
+
+	delay(configuration.globalDelay);
 
 
 /*

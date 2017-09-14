@@ -22,6 +22,8 @@
 #include <Adafruit_TSL2561_U.h>
 
 
+#include "CD4051B.h"
+
 
 class Node
 {
@@ -36,9 +38,12 @@ class Node
 	Configuration configuration;
 
 
-	Adafruit_TSL2561_Unified lightSensor = Adafruit_TSL2561_Unified(TSL2561_ADDR_FLOAT, 12345);;
+	Adafruit_TSL2561_Unified lightSensor = Adafruit_TSL2561_Unified(TSL2561_ADDR_FLOAT, 12345);
 
 
+
+	CD4051B inputMutiplexer = CD4051B(14, 12, 13);
+	CD4051B outputMutiplexer = CD4051B(15, 3, 1);
 
 
 
@@ -54,6 +59,11 @@ class Node
 
 
 	public: Node(void);
+
+
+	public: int enableInput(int input);
+	public: int enableOutput(int output);
+
 
 	public: void initialize(void);
 

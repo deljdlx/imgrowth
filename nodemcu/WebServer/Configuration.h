@@ -28,6 +28,8 @@ class Configuration
 	public: int pingInterval=60000;
 	public: int previousPingTime;
 
+	public: int globalDelay=1000;
+
 };
 
 #endif

@@ -10,9 +10,12 @@
 #include "DallasTemperature.h"
 
 
+#include "Configuration.h"
 #include "Pompe.h"
 #include "HumiditySensor.h"
-#include "Configuration.h"
+
+#include "CD4051B.h"
+
 
 
 
@@ -27,13 +30,15 @@ Node::Node() {
 	this->lightSensor.setIntegrationTime(TSL2561_INTEGRATIONTIME_101MS);  /* medium resolution and speed   */
 	// tsl.setIntegrationTime(TSL2561_INTEGRATIONTIME_402MS);  /* 16-bit data but slowest conversions */
 
-
-
-
- }
+}
 
 
 void Node::initialize(void) {
+
+
+
+
+
 	//OneWire oneWire(ONE_WIRE_BUS);
 	//DallasTemperature sensor(&oneWire);
 	//sensor.begin();
@@ -51,8 +56,10 @@ void Node::initialize(void) {
 
 float Node::getTemperature() {
 
+	//this->enableInput(2);
 	this->temperatureSensor.requestTemperatures();
-	Serial.println(this->temperatureSensor.getTempCByIndex(0));
+	Serial.print(this->temperatureSensor.getTempCByIndex(0));
+	Serial.println(" °");
 	return this->temperatureSensor.getTempCByIndex(0);
 
 }
@@ -78,6 +85,17 @@ float Node::getLight(void) {
 	}
 }
 
+
+int Node::enableInput(int input) {
+	this->inputMutiplexer.enable(input);
+	return input;
+}
+
+
+int Node::enableOutput(int output) {
+	this->outputMutiplexer.enable(output);
+	return output;
+}
 
 
 
@@ -111,9 +129,9 @@ void Node::wifiConnection(char* ssid, char* password) {
 
 void Node::listen(void) {
 	this->server.handleClient();
-	this->checkHumidity();
-	this->getLight();
-	this->ping();
+	//this->checkHumidity();
+	//this->getLight();
+	//this->ping();
 }
 
 
@@ -223,6 +241,102 @@ void Node::initializeServer(void) {
 	});
 
 
+
+
+
+	this->server.on("", [this](){
+		server.send(200, "text/plain", "Node server is up ");
+
+			//node.getLight();
+        	//node.getTemperature();
+        	//node.getHumidity();
+	});
+
+
+	this->server.on("/listen0", [this](){
+		this->enableInput(0);
+		server.send(200, "text/plain", "Listening PIN 0");
+	});
+	this->server.on("/listen1", [this](){
+		this->enableInput(1);
+		server.send(200, "text/plain", "Listening PIN 1");
+	});
+	this->server.on("/listen2", [this](){
+		this->enableInput(2);
+		server.send(200, "text/plain", "Listening PIN 2");
+	});
+	this->server.on("/listen3", [this](){
+		this->enableInput(3);
+		server.send(200, "text/plain", "Listening PIN 3");
+	});
+	this->server.on("/listen4", [this](){
+		this->enableInput(4);
+		server.send(200, "text/plain", "Listening PIN 4");
+	});
+	this->server.on("/listen5", [this](){
+		this->enableInput(5);
+		server.send(200, "text/plain", "Listening PIN 5");
+	});
+	this->server.on("/listen6", [this](){
+		this->enableInput(6);
+		server.send(200, "text/plain", "Listening PIN 6");
+	});
+	this->server.on("/listen7", [this](){
+		this->enableInput(7);
+		server.send(200, "text/plain", "Listening PIN 7");
+	});
+
+
+
+
+	this->server.on("/write0", [this](){
+		this->enableOutput(0);
+		server.send(200, "text/plain", "writing PIN 0");
+	});
+	this->server.on("/write1", [this](){
+		this->enableOutput(1);
+		server.send(200, "text/plain", "writing PIN 1");
+	});
+	this->server.on("/write2", [this](){
+		this->enableOutput(2);
+		server.send(200, "text/plain", "writing PIN 2");
+	});
+	this->server.on("/write3", [this](){
+		this->enableOutput(3);
+		server.send(200, "text/plain", "writing PIN 3");
+	});
+	this->server.on("/write4", [this](){
+		this->enableOutput(4);
+		server.send(200, "text/plain", "writing PIN 4");
+	});
+	this->server.on("/write5", [this](){
+		this->enableOutput(5);
+		server.send(200, "text/plain", "writing PIN 5");
+	});
+	this->server.on("/write6", [this](){
+		this->enableOutput(6);
+		server.send(200, "text/plain", "writing PIN 6");
+	});
+	this->server.on("/write7", [this](){
+		this->enableOutput(7);
+		server.send(200, "text/plain", "writing PIN 7");
+	});
+
+
+
+
+
+
+
+
+
+
+
+	this->server.on("/", [this](){
+		server.send(200, "text/plain", "Node server is up /");
+	});
+
+
 	this->server.on("/do", [this](){
 
 	});
@@ -281,5 +395,7 @@ void Node::initializeServer(void) {
 
 
 int Node::getHumidity(void) {
-  return this->humiditySensor.get();
+	int humidity = this->humiditySensor.get();
+	Serial.println(humidity);
+	return humidity;
 }
