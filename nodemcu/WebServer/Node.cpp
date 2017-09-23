@@ -182,6 +182,19 @@ void Node::saveWifiConfig(const char* ssid, const char* password) {
 void Node::wifiConnection(char* ssid, char* password) {
 
 
+
+	const char *localSSID = "imgrowth";
+	const char *localPassword = "16641664";
+
+
+	WiFi.softAP(localSSID, localPassword);
+	IPAddress myIP = WiFi.softAPIP();
+	Serial.print("AP IP address: ");
+	Serial.println(myIP);
+
+
+
+
 	if(this->connectFromSavedConfiguration()) {
 		return;
 	}
@@ -424,7 +437,29 @@ void Node::initializeServer(void) {
 
 
 	this->server.on("/", [this](){
-		server.send(200, "text/plain", "Node server is up /");
+
+
+	String humidity = String(this->getHumidity());
+	String temperature = String(this->getTemperature());
+	String light = String(this->getLight());
+
+
+	String response="Server is  up <br/><pre>{\n";
+
+	response=response+"\"humidity\":";
+	response=response+humidity+"\n";
+
+	response=response+",\"temperature\":";
+	response=response+temperature+"\n";
+
+	response=response+",\"light\":";
+	response=response+light+"\n";
+
+
+	response=response+"}</pre>";
+
+
+		server.send(200, "text/html", response);
 	});
 
 
