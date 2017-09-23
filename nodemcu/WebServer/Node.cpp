@@ -1,7 +1,6 @@
 #include "Node.h"
-#include <ESP8266WiFi.h>
-#include <WiFiClient.h>
-#include <ESP8266HTTPClient.h>
+
+
 #include <string>
 
 
@@ -16,7 +15,7 @@
 
 #include "CD4051B.h"
 
-#include <EEPROM.h>
+
 
 
 //OneWire oneWire(ONE_WIRE_BUS);
@@ -56,8 +55,6 @@ void Node::initialize(void) {
 	//this->temperatureSensor.begin();
   	//node.setSensor(sensor);
 }
-
-
 
 
 
@@ -116,69 +113,8 @@ void Node::setSensor(DallasTemperature sensor) {
 
 
 
-int Node::connectFromSavedConfiguration() {
 
-/* Don't set this wifi credentials. They are configurated at runtime and stored on EEPROM */
-	char ssid[32] = "";
-	char password[32] = "";
-
-
-  EEPROM.begin(512);
-  EEPROM.get(0, ssid);
-  EEPROM.get(0+sizeof(ssid), password);
-  char ok[2+1];
-  EEPROM.get(0+sizeof(ssid)+sizeof(password), ok);
-  EEPROM.end();
-
-  if (String(ok) != String("OK")) {
-    ssid[0] = 0;
-    password[0] = 0;
-  }
-  Serial.println("Recovered credentials:");
-  Serial.println(ssid);
-  Serial.println(strlen(password)>0?"********":"<no password>");
-
-
-	// on demande la connexion au WiFi
-	WiFi.begin(ssid, password);
-	Serial.println("");
-	// on attend d'etre connecte au WiFi avant de continuer
-	int loop = 0;
-	while (WiFi.status() != WL_CONNECTED) {
-		delay(500);
-		Serial.print(".");
-		loop++;
-		if(loop>20) {
-			return 0;
-		}
-	}
-	// on affiche l'adresse IP qui nous a ete attribuee
-	Serial.println("");
-	Serial.print("IP address: ");
-	Serial.println(WiFi.localIP());
-	return 1;
-}
-
-
-void Node::saveWifiConfig(const char* ssid, const char* password) {
-
-	char ssid2[32] = "";
-	char password2[32] = "";
-
-	strcpy(ssid2, ssid);
-	strcpy(password2, password);
-
-	EEPROM.begin(512);
-	EEPROM.put(0, ssid2);
-	EEPROM.put(0+sizeof(ssid2), password2);
-	char ok[2+1] = "OK";
-	EEPROM.put(0+sizeof(ssid2)+sizeof(password2), ok);
-	EEPROM.commit();
-	EEPROM.end();
-}
-
-
-
+/*
 void Node::wifiConnection(char* ssid, char* password) {
 
 
@@ -229,6 +165,7 @@ void Node::wifiConnection(char* ssid, char* password) {
       }
   }
 }
+*/
 
 
 void Node::listen(void) {

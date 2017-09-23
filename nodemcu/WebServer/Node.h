@@ -7,6 +7,8 @@
 #include "HumiditySensor.h"
 #include "Configuration.h"
 
+#include "NodeMCU.h"
+
 
 
 
@@ -25,7 +27,7 @@
 #include "CD4051B.h"
 
 
-class Node
+class Node : public NodeMCU
 {
 
 	HumiditySensor humiditySensor;
@@ -65,8 +67,8 @@ class Node
 	public: int enableOutput(int output);
 
 
-	public: void saveWifiConfig(const char* ssid, const char* password);
-	public: int connectFromSavedConfiguration();
+	//public: void saveWifiConfig(const char* ssid, const char* password);
+	//public: int connectFromSavedConfiguration();
 
 
 	public: void initialize(void);
@@ -87,7 +89,7 @@ class Node
 	public: void setSensor(DallasTemperature sensor);
 
 
-	public: void wifiConnection(char* ssid, char* password);
+	//public: void wifiConnection(char* ssid, char* password);
 
 
 	public: int getHumidity(void);
