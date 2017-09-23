@@ -22,7 +22,9 @@
 #include "Configuration.h"
 #include "Node.h"
 
+#include "NodeMCU.h"
 
+#include <EEPROM.h>
 
 
 
@@ -50,9 +52,12 @@ DallasTemperature temperatureSensor(&oneWire);
 
 
 
+
 void initialize(void) {
 
   Configuration configuration;
+
+	EEPROM.begin(512);
 
   Serial.begin(115200);
   Serial.printf("initialize");
@@ -62,23 +67,28 @@ void initialize(void) {
 
 
 
-  //pinMode(D9, OUTPUT);
-  //pinMode(D10, OUTPUT);
 
 
-  pinMode(pompePin, OUTPUT);
+
+	pinMode(pompePin, OUTPUT);
 
 
-  pinMode(PinAnalogiqueHumidite, INPUT);
-  pinMode(pompePin, OUTPUT);
+	pinMode(PinAnalogiqueHumidite, INPUT);
+	pinMode(pompePin, OUTPUT);
 
 
-    pinMode(5, OUTPUT);
+	pinMode(5, OUTPUT);
 
 
-    //pinMode(13, OUTPUT);
-    //pinMode(15, OUTPUT);
-    //pinMode(3, OUTPUT);
+	pinMode(13, OUTPUT);
+	pinMode(15, OUTPUT);
+	pinMode(3, OUTPUT);
+
+  	//pinMode(D9, OUTPUT);
+	//pinMode(D10, OUTPUT);
+
+
+
 
 
 

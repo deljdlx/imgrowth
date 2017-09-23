@@ -65,6 +65,10 @@ class Node
 	public: int enableOutput(int output);
 
 
+	public: void saveWifiConfig(const char* ssid, const char* password);
+	public: int connectFromSavedConfiguration();
+
+
 	public: void initialize(void);
 
 	public: void declareServer(void);

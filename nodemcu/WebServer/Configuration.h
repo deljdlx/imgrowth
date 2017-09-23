@@ -7,6 +7,9 @@ class Configuration
 	//public: char* wifiSSID="imgrowth";
 	//public: char* wifiPassword="imgrowth";
 
+	public: int saveMemoryAddress = 32;
+	public: char* configurationVersion="abc";
+
 	public: char* wifiSSID="biniou";
 	public: char* wifiPassword="16641664";
 
@@ -14,7 +17,7 @@ class Configuration
 	public: int humidyInterval = 60000;
 
 
-	public : int TEMPERATURE_PIN= D4;
+	public: int TEMPERATURE_PIN= D4;
 
 
 
