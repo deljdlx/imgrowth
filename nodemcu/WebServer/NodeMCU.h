@@ -14,6 +14,9 @@ class NodeMCU
 
 
 
+	public : IPAddress myIP;
+
+	public : IPAddress hotspotIP;
 
 
 	public: NodeMCU(void);
@@ -23,9 +26,11 @@ class NodeMCU
 
 	public: void GPIOUp();
 
-	public:  void wifiConnection(char* ssid, char* password);
+	public: bool wifiConnection(const char* ssid, const char* password);
+	public: bool wifiAutoConnection(const char* ssid, const char* password);
+
 	public: void saveWifiConfig(const char* ssid, const char* password);
-	public: int connectFromSavedConfiguration();
+	public: bool connectFromSavedConfiguration();
 
 };
 

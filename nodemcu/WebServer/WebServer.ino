@@ -10,8 +10,6 @@
 #include <ESP8266HTTPClient.h>
 #include <ESP8266WebServer.h>
 
-
-#define ONE_WIRE_BUS            D4
 #include <OneWire.h>
 #include "DallasTemperature.h"
 
@@ -28,25 +26,17 @@
 
 
 
-const int pompePin =  5;
-int pompeState = LOW;
-
-const int PinAnalogiqueHumidite = 0;
-
-
-
-
 const int ledPin = 12;
 int ledState = LOW;
 
 
 
 
-
+Configuration configuration;
 Node node;
 
 
-OneWire oneWire(ONE_WIRE_BUS);
+OneWire oneWire(configuration.oneWirePin);
 DallasTemperature temperatureSensor(&oneWire);
 
 
@@ -55,47 +45,16 @@ DallasTemperature temperatureSensor(&oneWire);
 
 void initialize(void) {
 
-  Configuration configuration;
+	Configuration configuration;
 
 	EEPROM.begin(512);
 
-  Serial.begin(115200);
-  Serial.printf("initialize");
+	Serial.begin(configuration.serialSpeed);
+	Serial.printf("initialize");
 
 
 	node.initialize();
 
-
-
-
-
-
-	pinMode(pompePin, OUTPUT);
-
-
-	pinMode(PinAnalogiqueHumidite, INPUT);
-	pinMode(pompePin, OUTPUT);
-
-
-	pinMode(5, OUTPUT);
-
-
-	pinMode(13, OUTPUT);
-	pinMode(15, OUTPUT);
-	pinMode(3, OUTPUT);
-
-  	//pinMode(D9, OUTPUT);
-	//pinMode(D10, OUTPUT);
-
-
-
-
-
-
-  node.wifiConnection(
-    configuration.wifiSSID,
-    configuration.wifiPassword
-  );
 
 
 
@@ -113,20 +72,9 @@ void initialize(void) {
 
 
 void setup(void) {
-  initialize();
-
-  pinMode(ledPin, OUTPUT);
-
-	node.enableInput(0);
-
-	//digitalWrite(15, HIGH);
-	//digitalWrite(3, HIGH);
-
-
-
-
-	//
-	//digitalWrite(8, HIGH);
+	initialize();
+	node.enableInput(configuration.startListenInput);
+	node.enableOutput(configuration.startWriteOutput);
 
 
 }
@@ -137,11 +85,6 @@ void setup(void) {
 unsigned long previousMillis = 0;
 
 void loop(void) {
-
-
-
-	Configuration configuration;
-
 
 
 	if (ledState == LOW) {
@@ -162,9 +105,17 @@ void loop(void) {
 
 	// a chaque iteration, on appelle handleClient pour que les requetes soient traitees
 	node.listen();
-	node.getLight();
-	node.getTemperature();
-	node.getHumidity();
+
+
+	//node.getLight();
+	//node.getTemperature();
+	//node.getHumidity();
+
+
+
+
+  //analogWrite(LEDpin, dutycycle);
+  //delay(100);
 
 
 

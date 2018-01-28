@@ -29,7 +29,7 @@ void NodeMCU::GPIOUp(void) {
 
 
 
-int NodeMCU::connectFromSavedConfiguration() {
+bool NodeMCU::connectFromSavedConfiguration() {
 
 /* Don't set this wifi credentials. They are configurated at runtime and stored on EEPROM */
 	char ssid[32] = "";
@@ -49,27 +49,10 @@ int NodeMCU::connectFromSavedConfiguration() {
   }
   Serial.println("Recovered credentials:");
   Serial.println(ssid);
-  Serial.println(strlen(password)>0?"********":"<no password>");
+  Serial.println(strlen(password)>0? password :"<no password>");
 
+	return this->wifiConnection(ssid, password);
 
-	// on demande la connexion au WiFi
-	WiFi.begin(ssid, password);
-	Serial.println("");
-	// on attend d'etre connecte au WiFi avant de continuer
-	int loop = 0;
-	while (WiFi.status() != WL_CONNECTED) {
-		delay(500);
-		Serial.print(".");
-		loop++;
-		if(loop>20) {
-			return 0;
-		}
-	}
-	// on affiche l'adresse IP qui nous a ete attribuee
-	Serial.println("");
-	Serial.print("IP address: ");
-	Serial.println(WiFi.localIP());
-	return 1;
 }
 
 
@@ -101,29 +84,64 @@ void NodeMCU::saveWifiConfig(const char* ssid, const char* password) {
 
 
 
+bool NodeMCU::wifiConnection(const char* ssid, const char* password) {
+
+	Serial.println("Trying connection");
+
+	Serial.print("SSID : ");
+	Serial.println(ssid);
+
+	Serial.print("Password : ");
+	Serial.println(password);
+
+	Serial.println("");
+
+
+	// on demande la connexion au WiFi
+	WiFi.begin(ssid, password);
+	// on attend d'etre connecte au WiFi avant de continuer
+	int loop = 0;
+	while (WiFi.status() != WL_CONNECTED) {
+		delay(500);
+		Serial.print(".");
+		loop++;
+		if(loop>20) {
+			Serial.println("");
+			Serial.println("Connection failed");
+			return false;
+		}
+	}
+	// on affiche l'adresse IP qui nous a ete attribuee
+	Serial.println("");
+	Serial.println("Connection successfull");
+	Serial.print("IP address: ");
+	Serial.println(WiFi.localIP());
+
+	this->myIP = WiFi.localIP();
+
+	return true;
+
+}
 
 
 
 
 
-void NodeMCU::wifiConnection(char* ssid, char* password) {
+bool NodeMCU::wifiAutoConnection(const char* ssid, const char* password) {
 
 
 
+	/*
 	const char *localSSID = "imgrowth";
 	const char *localPassword = "16641664";
-
-
 	WiFi.softAP(localSSID, localPassword);
-	IPAddress myIP = WiFi.softAPIP();
-	Serial.print("AP IP address: ");
-	Serial.println(myIP);
-
+	*/
 
 
 
 	if(this->connectFromSavedConfiguration()) {
-		return;
+		WiFi.mode(WIFI_AP_STA);
+		return true;
 	}
 
   Serial.println("\nPress WPS button on your router ...");
@@ -131,7 +149,10 @@ void NodeMCU::wifiConnection(char* ssid, char* password) {
 
   Serial.println("WPS config start");
   // WPS works in STA (Station mode) only -> not working in WIFI_AP_STA !!!
+
   WiFi.mode(WIFI_STA);
+
+
   delay(1000);
   WiFi.begin("foobar",""); // make a failed connection
   while (WiFi.status() == WL_DISCONNECTED) {
@@ -149,11 +170,16 @@ void NodeMCU::wifiConnection(char* ssid, char* password) {
 
 		Serial.print("IP address: ");
 		Serial.println(WiFi.localIP());
-		this->saveWifiConfig(newSSID.c_str(),  WiFi.psk().c_str());
 
+		this->myIP = WiFi.localIP();
+
+		this->saveWifiConfig(newSSID.c_str(),  WiFi.psk().c_str());
+		return true;
       } else {
-        wpsSuccess = false;
+        return false;
       }
   }
+
+  return false;
 }
 

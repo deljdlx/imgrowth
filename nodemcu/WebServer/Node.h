@@ -27,6 +27,10 @@
 #include "CD4051B.h"
 
 
+
+#include "DNSServer.h"
+
+
 class Node : public NodeMCU
 {
 
@@ -37,6 +41,13 @@ class Node : public NodeMCU
 
 	ESP8266WebServer server;
 
+
+
+	DNSServer dnsServer;
+
+
+
+
 	Configuration configuration;
 
 
@@ -44,12 +55,16 @@ class Node : public NodeMCU
 
 
 
-	CD4051B inputMutiplexer = CD4051B(14, 12, 13);
-	CD4051B outputMutiplexer = CD4051B(15, 3, 1);
-
-
-
-	int PinAnalogiqueHumidite = 0;
+	CD4051B outputMutiplexer = CD4051B(
+		configuration.writePIN_0,
+		configuration.writePIN_1,
+		configuration.writePIN_2
+	);
+	CD4051B  inputMutiplexer = CD4051B(
+		configuration.readPIN_0,
+		configuration.readPIN_1,
+		configuration.readPIN_2
+	);
 
 
 	unsigned long previousHumidyTime = 0;
@@ -99,6 +114,7 @@ class Node : public NodeMCU
 
 	public: void ping(void);
 
+	public: void startHotspot(const char * ssid, const char * password);
 
 
 

@@ -7,17 +7,42 @@ class Configuration
 	//public: char* wifiSSID="imgrowth";
 	//public: char* wifiPassword="imgrowth";
 
+
+	public: int serialSpeed = 115200;
+
+
 	public: int saveMemoryAddress = 32;
 	public: char* configurationVersion="abc";
 
-	public: char* wifiSSID="biniou";
-	public: char* wifiPassword="16641664";
+	public: String wifiSSID="biniou";
+	public: String wifiPassword="16641664";
 
 	//public: int humidyInterval = 60000;
 	public: int humidyInterval = 60000;
 
 
-	public: int TEMPERATURE_PIN= D4;
+	public: int TEMPERATURE_PIN = D4;
+
+
+	public: int oneWirePin = D4;
+
+	public: int writePIN_0 = 14;
+	public: int writePIN_1 = 12;
+	public: int writePIN_2 = 13;
+
+	public: int readPIN_0 = 15;
+	public: int readPIN_1 = 3;
+	public: int readPIN_2 = 1;
+
+
+	public: int analogInputPIN = 0;
+
+	public:  int lightPIN = 16;
+
+
+	public: int startWriteOutput = 0;
+	public: int startListenInput = 0;
+
 
 
 
@@ -27,11 +52,14 @@ class Configuration
 	String node_dataURI="/getData";
 
 
+	public: String hotspotSSID ="imGrowthConfig";
+	public: String hotspotPassword ="imGrowthConfig";
+
 
 	public: int pingInterval=60000;
 	public: int previousPingTime;
 
-	public: int globalDelay=1000;
+	public: int globalDelay=100;
 
 };
 
