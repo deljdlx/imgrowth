@@ -127,6 +127,7 @@ void Node::listen(void) {
 
 
 float Node::getTemperature() {
+
 	this->temperatureSensor.requestTemperatures();
 	Serial.print(this->temperatureSensor.getTempCByIndex(0));
 	Serial.println(" °");
@@ -204,59 +205,3 @@ int Node::getHumidity(void) {
 	return humidity;
 }
 
-
-
-
-
-/*
-void Node::wifiConnection(char* ssid, char* password) {
-
-
-
-	const char *localSSID = "imgrowth";
-	const char *localPassword = "16641664";
-
-
-	WiFi.softAP(localSSID, localPassword);
-	IPAddress myIP = WiFi.softAPIP();
-	Serial.print("AP IP address: ");
-	Serial.println(myIP);
-
-
-
-
-	if(this->connectFromSavedConfiguration()) {
-		return;
-	}
-
-  Serial.println("\nPress WPS button on your router ...");
-  delay(5000);
-
-  Serial.println("WPS config start");
-  // WPS works in STA (Station mode) only -> not working in WIFI_AP_STA !!!
-  WiFi.mode(WIFI_STA);
-  delay(1000);
-  WiFi.begin("foobar",""); // make a failed connection
-  while (WiFi.status() == WL_DISCONNECTED) {
-    delay(500);
-    Serial.print(".");
-  }
-  bool wpsSuccess = WiFi.beginWPSConfig();
-  if(wpsSuccess) {
-      // Well this means not always success :-/ in case of a timeout we have an empty ssid
-      String newSSID = WiFi.SSID();
-      if(newSSID.length() > 0) {
-        // WPSConfig has already connected in STA mode successfully to the new station.
-        Serial.printf("WPS finished. Connected successfull to SSID '%s'", newSSID.c_str());
-
-
-		Serial.print("IP address: ");
-		Serial.println(WiFi.localIP());
-		this->saveWifiConfig(newSSID.c_str(),  WiFi.psk().c_str());
-
-      } else {
-        wpsSuccess = false;
-      }
-  }
-}
-*/

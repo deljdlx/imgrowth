@@ -32,6 +32,9 @@ class ImGrowthHTTPServer
 
 	public: String declareServer(void);
 	public: void initialize(void);
+
+	public: void setNode(Node node);
+
 	public: void listen(void);
 
 	public: void getData(void);

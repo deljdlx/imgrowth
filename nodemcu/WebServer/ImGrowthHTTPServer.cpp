@@ -19,9 +19,13 @@ ImGrowthHTTPServer::ImGrowthHTTPServer(void)
 void ImGrowthHTTPServer::listen(void)
 {
 	this->node.listen();
-		this->server.handleClient();
+	this->server.handleClient();
 }
 
+void ImGrowthHTTPServer::setNode(Node node)
+{
+	this->node = node;
+}
 
 
 
@@ -63,11 +67,15 @@ String ImGrowthHTTPServer::declareServer(void) {
 void ImGrowthHTTPServer::getData(void) {
 
 
+	String response="{";
+
 	this->node.enableInput(0);
 	String humidity0 = String(this->node.getHumidity());
 
 	this->node.enableInput(1);
 	String humidity1 = String(this->node.getHumidity());
+
+
 
 	this->node.enableInput(2);
 	String humidity2 = String(this->node.getHumidity());
@@ -77,11 +85,19 @@ void ImGrowthHTTPServer::getData(void) {
 
 
 
+
 	String temperature = String(this->node.getTemperature());
+
+
+
+	this->server.send(200, "application/json", response);
+	return;
+
+
 	String light = String(this->node.getLight());
 
 
-	String response="{";
+
 
 	response=response+"\"humidity\": ["+
 		humidity0+","+
@@ -114,19 +130,9 @@ void ImGrowthHTTPServer::initialize(void)
 	this->node.initialize();
 
 	this->server.on(this->configuration.node_dataURI.c_str(), [this](){
-
+		this->getData();
 	});
 
-
-
-
-	this->server.on("/", [this](){
-		server.send(200, "text/plain", "Node server is up ");
-	});
-
-	this->server.on("", [this](){
-		server.send(200, "text/plain", "Node server is up ");
-	});
 
 
 	this->server.on("/lightOn", [this](){
@@ -217,8 +223,22 @@ void ImGrowthHTTPServer::initialize(void)
 
 
 
+	this->server.on("/sensor/light", [this](){
+		String light = String(this->node.getLight());
+		server.send(200, "application/json", "{\"light\" :" + light+"}");
+	});
+
+	this->server.on("/sensor/temperature", [this](){
+		String temperature = String(this->node.getTemperature());
+		server.send(200, "application/json", "{\"temperature\" :" + temperature+"}");
+	});
 
 
+
+
+	this->server.on("", [this](){
+		server.send(200, "text/plain", "Node server is up ");
+	});
 
 
 
@@ -226,20 +246,23 @@ void ImGrowthHTTPServer::initialize(void)
 
 
 	String humidity = String(this->node.getHumidity());
-	String temperature = String(this->node.getTemperature());
-	String light = String(this->node.getLight());
+
+	//String temperature = String(this->node.getTemperature());
+
+
+	//String light = String(this->node.getLight());
 
 
 	String response="Server is  up <br/><pre>{\n";
 
-	response=response+"\"humidity\":";
-	response=response+humidity+"\n";
+	//response=response+"\"humidity\":";
+	//response=response+humidity+"\n";
 
-	response=response+",\"temperature\":";
-	response=response+temperature+"\n";
+	//response=response+",\"temperature\":";
+	//response=response+temperature+"\n";
 
-	response=response+",\"light\":";
-	response=response+light+"\n";
+	//response=response+",\"light\":";
+	//response=response+light+"\n";
 
 
 	response=response+"}</pre>";

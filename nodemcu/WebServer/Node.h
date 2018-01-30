@@ -5,10 +5,13 @@
 #include <Wire.h>
 #include <Adafruit_Sensor.h>
 #include <Adafruit_TSL2561_U.h>
+
+
+
 #include <OneWire.h>
-
-
 #include "./DallasTemperature.h"
+
+
 #include "./CD4051B.h"
 #include "./DNSServer.h"
 
@@ -29,7 +32,7 @@ class Node : public NodeMCU
 {
 
 	HumiditySensor humiditySensor;
-
+	DallasTemperature temperatureSensor;
 
 
 
@@ -62,9 +65,6 @@ class Node : public NodeMCU
 	unsigned long previousHumidyTime = 0;
 
 
-
-
-	DallasTemperature temperatureSensor;
 
 
 	public: Node(void);

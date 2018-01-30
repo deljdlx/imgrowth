@@ -6,6 +6,9 @@
 #include <OneWire.h>
 
 
+
+#include "./DallasTemperature.h"
+
 #include "Configuration.h"
 #include "Node.h"
 #include "ImGrowthHTTPServer.h"
@@ -30,6 +33,7 @@ ImGrowthHTTPServer HTTPServer;
 
 
 
+
 void setup(void) {
 	Configuration configuration;
 
@@ -38,13 +42,17 @@ void setup(void) {
 	Serial.begin(configuration.serialSpeed);
 	Serial.printf("initialize");
 
+	temperatureSensor.begin();
+	node.setSensor(temperatureSensor);
 
+
+	HTTPServer.setNode(node);
 	HTTPServer.initialize();
 
 
 
-  temperatureSensor.begin();
-  node.setSensor(temperatureSensor);
+
+
 
 }
 
