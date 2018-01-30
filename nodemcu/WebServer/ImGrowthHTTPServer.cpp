@@ -260,7 +260,6 @@ void ImGrowthHTTPServer::initialize(void)
 
 
   this->server.on("/node/loadConfiguration", [this](){
-  		server.send(200, "text/html", "Loading configuration");
 		this->loadConfiguration();
   });
 
@@ -341,7 +340,7 @@ bool ImGrowthHTTPServer::loadConfiguration(void) {
 
 	HTTPClient http;
 
-    String url = "http://192.168.0.10/project/imgrowth-web/www/index.php/node/check";
+    String url = this->configuration.configurationURL;
 
 	Serial.println("Retrieving data : "+url);
 	http.begin(url);
@@ -354,6 +353,7 @@ bool ImGrowthHTTPServer::loadConfiguration(void) {
 			String response = http.getString();
 
 			Serial.println(response);
+			this->server.send(200, "application/json", response);
 
 
 			const char * json = response.c_str();

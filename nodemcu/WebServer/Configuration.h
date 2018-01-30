@@ -53,6 +53,8 @@ class Configuration
 	String node_version="0.0.1";
 	String declareURL="http://192.168.0.10/project/imgrowth-web/www/index.php/declare";
 
+	String configurationURL = "http://192.168.0.10/project/imgrowth-web/www/index.php/node/configuration";
+
 	String node_dataURI="/getData";
 
 
