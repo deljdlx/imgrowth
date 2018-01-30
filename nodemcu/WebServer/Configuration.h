@@ -36,7 +36,6 @@ class Configuration
 	public: int readPIN_1 = 3;
 	public: int readPIN_2 = 1;
 
-
 	public: int analogInputPIN = 0;
 
 	public:  int lightPIN = 16;
@@ -44,6 +43,9 @@ class Configuration
 
 	public: int startWriteOutput = 0;
 	public: int startListenInput = 0;
+
+
+	public: int wateringDelay = 10000;
 
 
 

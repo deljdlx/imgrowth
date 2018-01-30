@@ -24,8 +24,14 @@ ImGrowthHTTPServer::ImGrowthHTTPServer(void)
 
 void ImGrowthHTTPServer::listen(void)
 {
-	this->node.listen();
-	this->server.handleClient();
+	if(!this->configurationLoaded) {
+		this->loadConfiguration();
+	}
+
+	if(this->configurationLoaded) {
+		this->node.listen();
+		this->server.handleClient();
+	}
 }
 
 void ImGrowthHTTPServer::setNode(Node node)
@@ -121,6 +127,10 @@ void ImGrowthHTTPServer::initialize(void)
 
 	this->node.initialize();
 
+
+
+
+
 	this->server.on(this->configuration.node_dataURI.c_str(), [this](){
 
 		String response = this->getData();
@@ -130,12 +140,12 @@ void ImGrowthHTTPServer::initialize(void)
 
 
 
-	this->server.on("/lightOn", [this](){
+	this->server.on("/node/lightOn", [this](){
 		server.send(200, "text/plain", "Light ON");
 		digitalWrite(this->configuration.lightPIN, HIGH);
 	});
 
-	this->server.on("/lightOff", [this](){
+	this->server.on("/node/lightOff", [this](){
 		server.send(200, "text/plain", "Light Off");
 		digitalWrite(this->configuration.lightPIN, LOW);
 	});
@@ -144,96 +154,19 @@ void ImGrowthHTTPServer::initialize(void)
 
 
 
-	this->server.on("/listen0", [this](){
-		this->node.enableInput(0);
-		server.send(200, "text/plain", "Listening PIN 0");
-	});
-	this->server.on("/listen1", [this](){
-		this->node.enableInput(1);
-		server.send(200, "text/plain", "Listening PIN 1");
-	});
-	this->server.on("/listen2", [this](){
-		this->node.enableInput(2);
-		server.send(200, "text/plain", "Listening PIN 2");
-	});
-	this->server.on("/listen3", [this](){
-		this->node.enableInput(3);
-		server.send(200, "text/plain", "Listening PIN 3");
-	});
-	this->server.on("/listen4", [this](){
-		this->node.enableInput(4);
-		server.send(200, "text/plain", "Listening PIN 4");
-	});
-	this->server.on("/listen5", [this](){
-		this->node.enableInput(5);
-		server.send(200, "text/plain", "Listening PIN 5");
-	});
-	this->server.on("/listen6", [this](){
-		this->node.enableInput(6);
-		server.send(200, "text/plain", "Listening PIN 6");
-	});
-	this->server.on("/listen7", [this](){
-		this->node.enableInput(7);
-		server.send(200, "text/plain", "Listening PIN 7");
-	});
 
 
-
-
-	this->server.on("/write0", [this](){
-		this->node.enableOutput(0);
-		server.send(200, "text/plain", "writing PIN 0");
-	});
-	this->server.on("/write1", [this](){
-		this->node.enableOutput(1);
-		server.send(200, "text/plain", "writing PIN 1");
-	});
-	this->server.on("/write2", [this](){
-		this->node.enableOutput(2);
-		server.send(200, "text/plain", "writing PIN 2");
-	});
-	this->server.on("/write3", [this](){
-		this->node.enableOutput(3);
-		server.send(200, "text/plain", "writing PIN 3");
-	});
-	this->server.on("/write4", [this](){
-		this->node.enableOutput(4);
-		server.send(200, "text/plain", "writing PIN 4");
-	});
-	this->server.on("/write5", [this](){
-		this->node.enableOutput(5);
-		server.send(200, "text/plain", "writing PIN 5");
-	});
-	this->server.on("/write6", [this](){
-		this->node.enableOutput(6);
-		server.send(200, "text/plain", "writing PIN 6");
-	});
-	this->server.on("/write7", [this](){
-		this->node.enableOutput(7);
-		server.send(200, "text/plain", "writing PIN 7");
-	});
-
-
-
-
-
-
-	this->server.on("/sensor/light", [this](){
+	this->server.on("/node/sensor/light", [this](){
 		String light = String(this->node.getLight());
 		server.send(200, "application/json", "{\"light\" :" + light+"}");
 	});
 
-	this->server.on("/sensor/temperature", [this](){
+	this->server.on("/node/sensor/temperature", [this](){
 		String temperature = String(this->node.getTemperature());
 		server.send(200, "application/json", "{\"temperature\" :" + temperature+"}");
 	});
 
 
-
-
-	this->server.on("", [this](){
-		server.send(200, "text/plain", "Node server is up ");
-	});
 
 
 
@@ -326,6 +259,12 @@ void ImGrowthHTTPServer::initialize(void)
 
 
 
+  this->server.on("/node/loadConfiguration", [this](){
+  		server.send(200, "text/html", "Loading configuration");
+		this->loadConfiguration();
+  });
+
+
   this->server.on("/node/check", [this](){
 
 	HTTPClient http;
@@ -349,8 +288,6 @@ void ImGrowthHTTPServer::initialize(void)
 			const char * json = response.c_str();
 			StaticJsonBuffer<800> jsonBuffer;
 			JsonObject& root = jsonBuffer.parseObject(json);
-
-			long time = root["time"];
 
 			int humidyTresholds[4];
 			int i = 0;
@@ -388,34 +325,161 @@ void ImGrowthHTTPServer::initialize(void)
 	}
   });
 
-
+	this->initializeIO();
 	this->initializeWater();
+
 
 	// on commence a ecouter les requetes venant de l'exterieur
 	this->server.begin();
 }
 
 
+
+
+bool ImGrowthHTTPServer::loadConfiguration(void) {
+
+
+	HTTPClient http;
+
+    String url = "http://192.168.0.10/project/imgrowth-web/www/index.php/node/check";
+
+	Serial.println("Retrieving data : "+url);
+	http.begin(url);
+
+	int httpCode = http.GET();
+
+	if(httpCode > 0) {
+		if(httpCode == 200) {
+
+			String response = http.getString();
+
+			Serial.println(response);
+
+
+			const char * json = response.c_str();
+			StaticJsonBuffer<800> jsonBuffer;
+
+			this->configurationLoaded = true;
+
+			JsonObject& root = jsonBuffer.parseObject(json);
+
+			int i = 0;
+
+			for(i = 0 ; i<4 ; i++) {
+				this->node.humidityTresholds[i] = root["humidity"][i];
+			}
+
+			return true;
+		}
+	}
+	else {
+		Serial.printf("[HTTP] GET... failed, error: %s\n", http.errorToString(httpCode).c_str());
+		return false;
+	}
+}
+
+
+
 void ImGrowthHTTPServer::initializeWater(void) {
   this->server.on("/node/water0", [this](){
   	server.send(200, "text/html", "Watering 0");
-	this->node.watering(1);
+	this->node.watering(0);
   });
 
   this->server.on("/node/water1", [this](){
   	server.send(200, "text/html", "Watering 1");
-	this->node.watering(2);
+	this->node.watering(1);
   });
 
   this->server.on("/node/water2", [this](){
   	server.send(200, "text/html", "Watering 2");
-	this->node.watering(3);
+	this->node.watering(2);
   });
 
   this->server.on("/node/water3", [this](){
   	server.send(200, "text/html", "Watering 3");
-	this->node.watering(4);
+	this->node.watering(3);
   });
+}
+
+
+
+
+
+void ImGrowthHTTPServer::initializeIO(void) {
+
+
+
+	this->server.on("/listen0", [this](){
+		this->node.enableInput(0);
+		server.send(200, "text/plain", "Listening PIN 0");
+	});
+	this->server.on("/listen1", [this](){
+		this->node.enableInput(1);
+		server.send(200, "text/plain", "Listening PIN 1");
+	});
+	this->server.on("/listen2", [this](){
+		this->node.enableInput(2);
+		server.send(200, "text/plain", "Listening PIN 2");
+	});
+	this->server.on("/listen3", [this](){
+		this->node.enableInput(3);
+		server.send(200, "text/plain", "Listening PIN 3");
+	});
+	this->server.on("/listen4", [this](){
+		this->node.enableInput(4);
+		server.send(200, "text/plain", "Listening PIN 4");
+	});
+	this->server.on("/listen5", [this](){
+		this->node.enableInput(5);
+		server.send(200, "text/plain", "Listening PIN 5");
+	});
+	this->server.on("/listen6", [this](){
+		this->node.enableInput(6);
+		server.send(200, "text/plain", "Listening PIN 6");
+	});
+	this->server.on("/listen7", [this](){
+		this->node.enableInput(7);
+		server.send(200, "text/plain", "Listening PIN 7");
+	});
+
+
+
+
+	this->server.on("/write0", [this](){
+		this->node.enableOutput(0);
+		server.send(200, "text/plain", "writing PIN 0");
+	});
+	this->server.on("/write1", [this](){
+		this->node.enableOutput(1);
+		server.send(200, "text/plain", "writing PIN 1");
+	});
+	this->server.on("/write2", [this](){
+		this->node.enableOutput(2);
+		server.send(200, "text/plain", "writing PIN 2");
+	});
+	this->server.on("/write3", [this](){
+		this->node.enableOutput(3);
+		server.send(200, "text/plain", "writing PIN 3");
+	});
+	this->server.on("/write4", [this](){
+		this->node.enableOutput(4);
+		server.send(200, "text/plain", "writing PIN 4");
+	});
+	this->server.on("/write5", [this](){
+		this->node.enableOutput(5);
+		server.send(200, "text/plain", "writing PIN 5");
+	});
+	this->server.on("/write6", [this](){
+		this->node.enableOutput(6);
+		server.send(200, "text/plain", "writing PIN 6");
+	});
+	this->server.on("/write7", [this](){
+		this->node.enableOutput(7);
+		server.send(200, "text/plain", "writing PIN 7");
+	});
+
+
 
 }
 

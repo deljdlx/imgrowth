@@ -31,6 +31,18 @@
 class Node : public NodeMCU
 {
 
+
+
+	public: unsigned long humidityLastTime0;
+	public: unsigned long humidityLastTime1;
+	public: unsigned long humidityLastTime2;
+	public: unsigned long humidityLastTime3;
+
+	public: unsigned long humidityCheckDelay = 10000;
+	public: int humidityTresholds[4];
+
+
+
 	HumiditySensor humiditySensor;
 	DallasTemperature temperatureSensor;
 
@@ -106,7 +118,10 @@ class Node : public NodeMCU
 
 	public: int * checkHumidity(int * tresholds);
 
-	public: void watering(int output);
+
+	public: void watering(int pompeIndex);
+	public: bool doWatering(int input);
+	public: void irrigate(void);
 
 
 

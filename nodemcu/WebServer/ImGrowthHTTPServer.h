@@ -18,13 +18,19 @@
 class ImGrowthHTTPServer
 {
 
+	public: bool configurationLoaded =false;
+
+
+	public: unsigned long previousPingTime = 0;
 	public: ESP8266WebServer server;
 
 	public: Configuration configuration;
 
 	public: Node node;
 
-	public: unsigned long previousPingTime = 0;
+
+
+
 
 
 	public: ImGrowthHTTPServer(void);
@@ -34,7 +40,11 @@ class ImGrowthHTTPServer
 
 
 	public: void initialize(void);
+	public: void initializeIO(void);
 	public: void initializeWater(void);
+
+
+	public: bool loadConfiguration(void);
 
 
 	public: void setNode(Node node);

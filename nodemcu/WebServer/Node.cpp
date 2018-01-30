@@ -116,7 +116,51 @@ void Node::startHotspot(const char * ssid, const char * password) {
 
 void Node::listen(void) {
 	this->dnsServer.processNextRequest();
+	this->irrigate();
+
 }
+
+
+void Node::irrigate(void) {
+
+	unsigned long current = millis();
+
+	bool watered = false;
+
+	if(current - this->humidityLastTime0 > this->humidityCheckDelay) {
+		watered = this->doWatering(0);
+		this->humidityLastTime0 = millis();
+		if(watered) {
+			return;
+		}
+	}
+
+	if(current - this->humidityLastTime1 > this->humidityCheckDelay) {
+		watered = this->doWatering(1);
+		this->humidityLastTime1 = millis();
+		if(watered) {
+			return;
+		}
+	}
+
+	if(current - this->humidityLastTime2 > this->humidityCheckDelay) {
+		watered = this->doWatering(2);
+		this->humidityLastTime2 = millis();
+		if(watered) {
+			return;
+		}
+	}
+
+	if(current - this->humidityLastTime3 > this->humidityCheckDelay) {
+		watered = this->doWatering(3);
+		this->humidityLastTime3 = millis();
+		if(watered) {
+			return;
+		}
+	}
+
+}
+
 
 
 
@@ -188,11 +232,41 @@ void Node::setSensor(DallasTemperature sensor) {
 }
 
 
-void Node::watering(int output) {
-	this->enableOutput(output);
-	delay(10000);
+
+
+
+bool Node::doWatering(int input) {
+
+	int humidity = this->getHumidity(input);
+
+	Serial.println(humidity);
+	Serial.println(this->humidityTresholds[input]);
+
+
+	if(humidity > this->humidityTresholds[input]) {
+		Serial.println("Watering " + input);
+		this->watering(input);
+		return true;
+	}
+	else {
+		Serial.println("Skipping " + input);
+		return false;
+	}
+
+
+}
+
+
+void Node::watering(int pompeIndex) {
+	this->enableOutput(pompeIndex+1);
+	delay(this->configuration.wateringDelay);
 	this->enableOutput(0);
 }
+
+
+
+
+
 
 
 int * Node::checkHumidity(int * tresholds) {
