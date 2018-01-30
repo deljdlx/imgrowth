@@ -130,12 +130,15 @@ bool NodeMCU::wifiConnection(const char* ssid, const char* password) {
 bool NodeMCU::wifiAutoConnection(const char* ssid, const char* password) {
 
 
+	if(WiFi.status() != WL_DISCONNECTED) {
+		Serial.println("Wifi disconnection");
+		WiFi.disconnect();
+	}
 
-	/*
-	const char *localSSID = "imgrowth";
-	const char *localPassword = "16641664";
-	WiFi.softAP(localSSID, localPassword);
-	*/
+	if(this->wifiConnection(ssid, password)) {
+		WiFi.mode(WIFI_AP_STA);
+		return true;
+	}
 
 
 

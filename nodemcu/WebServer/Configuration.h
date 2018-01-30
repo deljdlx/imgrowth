@@ -17,7 +17,7 @@ class Configuration
 	public: String wifiSSID="biniou";
 	public: String wifiPassword="16641664";
 
-	//public: int humidyInterval = 60000;
+
 	public: int humidyInterval = 60000;
 
 
@@ -29,6 +29,8 @@ class Configuration
 	public: int writePIN_0 = 14;
 	public: int writePIN_1 = 12;
 	public: int writePIN_2 = 13;
+
+	public:  int resetOutput = 7;
 
 	public: int readPIN_0 = 15;
 	public: int readPIN_1 = 3;

@@ -1,5 +1,5 @@
 #include <ESP8266WiFi.h>
-#include "CD4051B.h"
+#include "./CD4051B.h"
 
 CD4051B::CD4051B(int pinA, int pinB, int pinC) {
 

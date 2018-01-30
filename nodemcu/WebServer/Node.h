@@ -2,10 +2,22 @@
 #define NODE_H
 
 #include <ESP8266WebServer.h>
+#include <Wire.h>
+#include <Adafruit_Sensor.h>
+#include <Adafruit_TSL2561_U.h>
+#include <OneWire.h>
 
-#include "Pompe.h"
-#include "HumiditySensor.h"
+
+#include "./DallasTemperature.h"
+#include "./CD4051B.h"
+#include "./DNSServer.h"
+
+
+
 #include "Configuration.h"
+
+#include "HumiditySensor.h"
+
 
 #include "NodeMCU.h"
 
@@ -13,35 +25,15 @@
 
 
 
-
-#include <OneWire.h>
-#include "DallasTemperature.h"
-
-
-
-#include <Wire.h>
-#include <Adafruit_Sensor.h>
-#include <Adafruit_TSL2561_U.h>
-
-
-#include "CD4051B.h"
-
-
-
-#include "DNSServer.h"
-
-
 class Node : public NodeMCU
 {
 
 	HumiditySensor humiditySensor;
 
-	Pompe pompe;
+
 
 
 	ESP8266WebServer server;
-
-
 
 	DNSServer dnsServer;
 
@@ -68,7 +60,7 @@ class Node : public NodeMCU
 
 
 	unsigned long previousHumidyTime = 0;
-	unsigned long previousPingTime = 0;
+
 
 
 
@@ -88,11 +80,6 @@ class Node : public NodeMCU
 
 	public: void initialize(void);
 
-	public: void declareServer(void);
-	public: void http_getData(void);
-
-
-	public: void initializeServer(void);
 
 	public: void listen(void);
 
@@ -107,14 +94,17 @@ class Node : public NodeMCU
 	//public: void wifiConnection(char* ssid, char* password);
 
 
+
+	public: void wifiConnect(void);
+
 	public: int getHumidity(void);
 	public: float getTemperature(void);
 	public: float getLight(void);
 
-
-	public: void ping(void);
-
 	public: void startHotspot(const char * ssid, const char * password);
+
+
+	public:  void reset(void);
 
 
 

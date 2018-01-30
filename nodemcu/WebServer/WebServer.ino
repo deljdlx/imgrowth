@@ -1,33 +1,16 @@
 #include <ESP8266WiFi.h>
 
-#include <WiFiClient.h>
-#include <ESP8266WiFiMulti.h>
 
 
-#include <ESP8266mDNS.h>
-
-
-#include <ESP8266HTTPClient.h>
-#include <ESP8266WebServer.h>
-
+#include <EEPROM.h>
 #include <OneWire.h>
-#include "DallasTemperature.h"
-
-
-
 
 
 #include "Configuration.h"
 #include "Node.h"
-
-#include "NodeMCU.h"
-
-#include <EEPROM.h>
+#include "ImGrowthHTTPServer.h"
 
 
-
-const int ledPin = 12;
-int ledState = LOW;
 
 
 
@@ -40,11 +23,14 @@ OneWire oneWire(configuration.oneWirePin);
 DallasTemperature temperatureSensor(&oneWire);
 
 
+ImGrowthHTTPServer HTTPServer;
 
 
 
-void initialize(void) {
 
+
+
+void setup(void) {
 	Configuration configuration;
 
 	EEPROM.begin(512);
@@ -53,29 +39,12 @@ void initialize(void) {
 	Serial.printf("initialize");
 
 
-	node.initialize();
-
-
+	HTTPServer.initialize();
 
 
 
   temperatureSensor.begin();
   node.setSensor(temperatureSensor);
-
-
-  node.initializeServer();
-}
-
-
-
-
-
-
-void setup(void) {
-	initialize();
-	node.enableInput(configuration.startListenInput);
-	node.enableOutput(configuration.startWriteOutput);
-
 
 }
 
@@ -87,58 +56,13 @@ unsigned long previousMillis = 0;
 void loop(void) {
 
 
-	if (ledState == LOW) {
-		ledState = HIGH;
-    } else {
-		ledState = LOW;
-    }
-
-    //ledState = HIGH;
-
-	//digitalWrite(ledPin, ledState);
-
-
-	//int input = random(0,7);
-	//Serial.println(input);
-
-
-
 	// a chaque iteration, on appelle handleClient pour que les requetes soient traitees
-	node.listen();
-
-
-	//node.getLight();
-	//node.getTemperature();
-	//node.getHumidity();
-
-
-
-
-  //analogWrite(LEDpin, dutycycle);
-  //delay(100);
-
-
-
-
-
+	HTTPServer.listen();
 
 
 	delay(configuration.globalDelay);
 
 
-/*
-  if (currentMillis - previousMillis >= interval) {
-    previousMillis = currentMillis;
-    hsol = getHumidity();
-    Serial.println(hsol);
-    if (hsol > 600) {
-      digitalWrite(pompePin, HIGH);
-    }
-    else {
-      digitalWrite(pompePin, LOW);
-    }
-  }
-  */
 }
 
 

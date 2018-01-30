@@ -19,16 +19,13 @@ class NodeMCU
 	public : IPAddress hotspotIP;
 
 
+
+
 	public: NodeMCU(void);
-
-
 	public: void setSerialPinsToGPIO(void);
-
 	public: void GPIOUp();
-
 	public: bool wifiConnection(const char* ssid, const char* password);
 	public: bool wifiAutoConnection(const char* ssid, const char* password);
-
 	public: void saveWifiConfig(const char* ssid, const char* password);
 	public: bool connectFromSavedConfiguration();
 
