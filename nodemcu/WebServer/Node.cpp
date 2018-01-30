@@ -35,6 +35,10 @@ Node::Node() {
 
 void Node::initialize(void) {
 
+
+	this->setSerialPinsToGPIO();
+
+
 	pinMode(this->configuration.analogInputPIN, INPUT);
 	pinMode(this->configuration.lightPIN, OUTPUT);
 
@@ -149,6 +153,20 @@ float Node::getLight(void) {
 }
 
 
+
+
+
+int Node::getHumidity(int input) {
+
+	this->enableInput(input);
+	int humidity = this->humiditySensor.get();
+	Serial.println("Humidity : "+humidity);
+
+	return humidity;
+}
+
+
+
 int Node::enableInput(int input) {
 	this->inputMutiplexer.enable(input);
 	return input;
@@ -170,31 +188,52 @@ void Node::setSensor(DallasTemperature sensor) {
 }
 
 
-
-
-void Node::checkHumidity(void) {
-
-
-	int humidity;
-
-	unsigned long humidityTimer = millis();
-
-	if (humidityTimer - this->previousHumidyTime >= this->configuration.humidyInterval) {
-		this->previousHumidyTime = humidityTimer;
-		humidity = this->getHumidity();
-		Serial.println(humidity);
-	}
+void Node::watering(int output) {
+	this->enableOutput(output);
+	delay(10000);
+	this->enableOutput(0);
 }
 
 
+int * Node::checkHumidity(int * tresholds) {
+
+	int i = 0;
+	int humidity;
+
+	String response = "";
+
+	int * enabledOutputs;
+	enabledOutputs = (int *) malloc(sizeof(int)*4);
+
+	for(i = 0 ; i<4 ; i++) {
+		enabledOutputs[i] = 0;
+	}
+
+	for(i = 0 ; i<4 ; i++) {
+		humidity = this->getHumidity(i);
+
+		if(humidity > tresholds[i] && tresholds[i]) {
+
+			Serial.println("==================");
+			Serial.println("Water !");
+			Serial.println(String(tresholds[i]));
+			Serial.println(String(humidity));
+			Serial.println("==================");
+
+			enabledOutputs[i] = 1;
+			response += "Water on ";
+			response += String(i);
+			response += "\n";
+		}
+		else {
+			enabledOutputs[i] = 0;
+		}
+
+		//Serial.println(response);
+	}
+
+	return enabledOutputs;
 
 
-
-
-
-int Node::getHumidity(void) {
-	int humidity = this->humiditySensor.get();
-	Serial.println(humidity);
-	return humidity;
 }
 

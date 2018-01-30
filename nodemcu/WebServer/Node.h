@@ -37,7 +37,6 @@ class Node : public NodeMCU
 
 
 	ESP8266WebServer server;
-
 	DNSServer dnsServer;
 
 
@@ -85,8 +84,6 @@ class Node : public NodeMCU
 
 	public: void start(void);
 
-	public: void checkHumidity(void);
-
 
 	public: void setSensor(DallasTemperature sensor);
 
@@ -97,14 +94,19 @@ class Node : public NodeMCU
 
 	public: void wifiConnect(void);
 
-	public: int getHumidity(void);
+	public: int getHumidity(int input);
+
 	public: float getTemperature(void);
 	public: float getLight(void);
 
 	public: void startHotspot(const char * ssid, const char * password);
 
 
-	public:  void reset(void);
+	public: void reset(void);
+
+	public: int * checkHumidity(int * tresholds);
+
+	public: void watering(int output);
 
 
 

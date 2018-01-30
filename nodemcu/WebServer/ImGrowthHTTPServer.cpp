@@ -8,6 +8,12 @@
 
 
 
+#include "ArduinoJson.h"
+
+
+
+
+
 ImGrowthHTTPServer::ImGrowthHTTPServer(void)
 {
 
@@ -69,22 +75,11 @@ String ImGrowthHTTPServer::getData(void) {
 
 	String response="{";
 
-	this->node.enableInput(0);
-	String humidity0 = String(this->node.getHumidity());
 
-	this->node.enableInput(1);
-	String humidity1 = String(this->node.getHumidity());
-
-
-
-	this->node.enableInput(2);
-	String humidity2 = String(this->node.getHumidity());
-
-	this->node.enableInput(3);
-	String humidity3 = String(this->node.getHumidity());
-
-
-
+	String humidity0 = String(this->node.getHumidity(0));
+	String humidity1 = String(this->node.getHumidity(1));
+	String humidity2 = String(this->node.getHumidity(2));
+	String humidity3 = String(this->node.getHumidity(3));
 
 	String temperature = String(this->node.getTemperature());
 
@@ -266,7 +261,7 @@ void ImGrowthHTTPServer::initialize(void)
 	this->server.on("/humidity", [this](){
 
 		int humidity;
-		humidity = this->node.getHumidity();
+		humidity = this->node.getHumidity(0);
 		Serial.println(humidity);
 		server.send(200, "text/plain", String(humidity));
 	});
@@ -331,9 +326,100 @@ void ImGrowthHTTPServer::initialize(void)
 
 
 
-  // on commence a ecouter les requetes venant de l'exterieur
-  this->server.begin();
+  this->server.on("/node/check", [this](){
+
+	HTTPClient http;
+
+    String url = "http://192.168.0.10/project/imgrowth-web/www/index.php/node/check";
+
+	Serial.println("Retrieving data : "+url);
+	http.begin(url);
+
+	int httpCode = http.GET();
+
+	if(httpCode > 0) {
+		if(httpCode == 200) {
+			String response = http.getString();
+
+			Serial.println("==================");
+			Serial.println(response);
+			Serial.println("==================");
+
+
+			const char * json = response.c_str();
+			StaticJsonBuffer<800> jsonBuffer;
+			JsonObject& root = jsonBuffer.parseObject(json);
+
+			long time = root["time"];
+
+			int humidyTresholds[4];
+			int i = 0;
+
+			for(i = 0 ; i<4 ; i++) {
+				humidyTresholds[i] = root["humidity"][i];
+			}
+
+			int * enabledOutputs;
+			enabledOutputs = this->node.checkHumidity(humidyTresholds);
+
+			String humidityResponse = "[";
+
+			for(int i = 0 ; i<4 ; i++) {
+				humidityResponse += enabledOutputs[i];
+				if(i<3) {
+					humidityResponse += ",";
+				}
+			}
+
+			humidityResponse+="]";
+
+			free(enabledOutputs);
+
+
+			server.send(200, "application/json", humidityResponse);
+
+
+			//server.send(200, "application/json", response);
+			//return response;
+		}
+	}
+	else {
+		Serial.printf("[HTTP] GET... failed, error: %s\n", http.errorToString(httpCode).c_str());
+	}
+  });
+
+
+	this->initializeWater();
+
+	// on commence a ecouter les requetes venant de l'exterieur
+	this->server.begin();
 }
+
+
+void ImGrowthHTTPServer::initializeWater(void) {
+  this->server.on("/node/water0", [this](){
+  	server.send(200, "text/html", "Watering 0");
+	this->node.watering(1);
+  });
+
+  this->server.on("/node/water1", [this](){
+  	server.send(200, "text/html", "Watering 1");
+	this->node.watering(2);
+  });
+
+  this->server.on("/node/water2", [this](){
+  	server.send(200, "text/html", "Watering 2");
+	this->node.watering(3);
+  });
+
+  this->server.on("/node/water3", [this](){
+  	server.send(200, "text/html", "Watering 3");
+	this->node.watering(4);
+  });
+
+}
+
+
 
 
 

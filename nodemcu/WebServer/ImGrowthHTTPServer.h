@@ -31,7 +31,11 @@ class ImGrowthHTTPServer
 
 
 	public: String declareServer(void);
+
+
 	public: void initialize(void);
+	public: void initializeWater(void);
+
 
 	public: void setNode(Node node);
 
@@ -40,6 +44,11 @@ class ImGrowthHTTPServer
 	public: String getData(void);
 
 	public: void ping(void);
+
+
+
+
+
 
 }
 
