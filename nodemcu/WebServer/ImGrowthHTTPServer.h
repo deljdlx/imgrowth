@@ -25,6 +25,7 @@ class ImGrowthHTTPServer
 	public: ESP8266WebServer server;
 
 	public: Configuration configuration;
+	public: String userConfiguration;
 
 	public: Node node;
 

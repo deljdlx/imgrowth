@@ -264,6 +264,12 @@ void ImGrowthHTTPServer::initialize(void)
   });
 
 
+  this->server.on("/node/getConfiguration", [this](){
+		server.send(200, "application/json", this->userConfiguration);
+  });
+
+
+
   this->server.on("/node/check", [this](){
 
 	HTTPClient http;
@@ -351,6 +357,7 @@ bool ImGrowthHTTPServer::loadConfiguration(void) {
 		if(httpCode == 200) {
 
 			String response = http.getString();
+			this->userConfiguration = response;
 
 			Serial.println(response);
 			this->server.send(200, "application/json", response);
