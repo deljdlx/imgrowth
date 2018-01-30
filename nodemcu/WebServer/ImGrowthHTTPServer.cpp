@@ -245,27 +245,17 @@ void ImGrowthHTTPServer::initialize(void)
 	this->server.on("/", [this](){
 
 
-	String humidity = String(this->node.getHumidity());
+		String response = "{\n";
+			response += "\"LocalIP\": ";
 
-	//String temperature = String(this->node.getTemperature());
+			response +="\""+this->node.myIP.toString();
+			response +=+"\",";
 
+			response += "\"HotspotIP\": ";
+			response +="\""+this->node.hotspotIP.toString();
+			response +="\"";
+		response += " }";
 
-	//String light = String(this->node.getLight());
-
-
-	String response="Server is  up <br/><pre>{\n";
-
-	//response=response+"\"humidity\":";
-	//response=response+humidity+"\n";
-
-	//response=response+",\"temperature\":";
-	//response=response+temperature+"\n";
-
-	//response=response+",\"light\":";
-	//response=response+light+"\n";
-
-
-	response=response+"}</pre>";
 
 
 		server.send(200, "text/html", response);
