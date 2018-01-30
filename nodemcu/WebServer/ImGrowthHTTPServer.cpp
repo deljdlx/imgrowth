@@ -64,7 +64,7 @@ String ImGrowthHTTPServer::declareServer(void) {
 
 
 
-void ImGrowthHTTPServer::getData(void) {
+String ImGrowthHTTPServer::getData(void) {
 
 
 	String response="{";
@@ -89,9 +89,6 @@ void ImGrowthHTTPServer::getData(void) {
 	String temperature = String(this->node.getTemperature());
 
 
-
-	this->server.send(200, "application/json", response);
-	return;
 
 
 	String light = String(this->node.getLight());
@@ -118,7 +115,7 @@ void ImGrowthHTTPServer::getData(void) {
 	response=response+"}";
 
 
-	this->server.send(200, "application/json", response);
+	return response;
 
 }
 
@@ -130,7 +127,10 @@ void ImGrowthHTTPServer::initialize(void)
 	this->node.initialize();
 
 	this->server.on(this->configuration.node_dataURI.c_str(), [this](){
-		this->getData();
+
+		String response = this->getData();
+
+		this->server.send(200, "application/json", response);
 	});
 
 

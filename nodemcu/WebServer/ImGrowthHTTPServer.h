@@ -37,7 +37,7 @@ class ImGrowthHTTPServer
 
 	public: void listen(void);
 
-	public: void getData(void);
+	public: String getData(void);
 
 	public: void ping(void);
 

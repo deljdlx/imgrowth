@@ -111,14 +111,7 @@ void Node::startHotspot(const char * ssid, const char * password) {
 
 
 void Node::listen(void) {
-
-	//Serial.println("dns listen");
 	this->dnsServer.processNextRequest();
-
-
-	//this->checkHumidity();
-	//this->getLight();
-	//this->ping();
 }
 
 
