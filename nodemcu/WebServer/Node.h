@@ -13,7 +13,6 @@
 
 
 #include "./CD4051B.h"
-#include "./DNSServer.h"
 
 
 
@@ -85,10 +84,6 @@ class Node : public NodeMCU
 	public: int enableOutput(int output);
 
 
-	//public: void saveWifiConfig(const char* ssid, const char* password);
-	//public: int connectFromSavedConfiguration();
-
-
 	public: void initialize(void);
 
 
@@ -110,8 +105,6 @@ class Node : public NodeMCU
 
 
 	public: void reset(void);
-
-	public: int * checkHumidity(int * tresholds);
 
 
 	public: void watering(int pompeIndex);

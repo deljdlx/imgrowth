@@ -55,7 +55,7 @@ class Configuration
 
 	String configurationURL = "http://192.168.0.10/project/imgrowth-web/www/index.php/server/getConfiguration";
 
-	String node_dataURI="/getData";
+	String node_dataURI="/node/getData";
 
 
 	public: String hotspotSSID ="imGrowthConfig";

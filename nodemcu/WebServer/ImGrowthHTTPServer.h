@@ -50,11 +50,16 @@ class ImGrowthHTTPServer
 
 	public: void setNode(Node node);
 
-	public: void listen(void);
+	public: bool listen(void);
 
 	public: String getData(void);
 
 	public: String gotoURL(String url);
+
+
+
+
+
 
 	public: void ping(void);
 

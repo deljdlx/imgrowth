@@ -22,7 +22,7 @@ ImGrowthHTTPServer::ImGrowthHTTPServer(void)
 
 
 
-void ImGrowthHTTPServer::listen(void)
+bool ImGrowthHTTPServer::listen(void)
 {
 	if(!this->configurationLoaded) {
 		this->loadConfiguration();
@@ -31,7 +31,10 @@ void ImGrowthHTTPServer::listen(void)
 	if(this->configurationLoaded) {
 		this->node.listen();
 		this->server.handleClient();
+		return true;
 	}
+
+	return false;
 }
 
 void ImGrowthHTTPServer::setNode(Node node)
@@ -279,66 +282,6 @@ void ImGrowthHTTPServer::initialize(void)
   });
 
 
-
-  this->server.on("/node/check", [this](){
-
-	HTTPClient http;
-
-    String url = "http://192.168.0.10/project/imgrowth-web/www/index.php/node/check";
-
-	Serial.println("Retrieving data : "+url);
-	http.begin(url);
-
-	int httpCode = http.GET();
-
-	if(httpCode > 0) {
-		if(httpCode == 200) {
-			String response = http.getString();
-
-			Serial.println("==================");
-			Serial.println(response);
-			Serial.println("==================");
-
-
-			const char * json = response.c_str();
-			StaticJsonBuffer<800> jsonBuffer;
-			JsonObject& root = jsonBuffer.parseObject(json);
-
-			int humidyTresholds[4];
-			int i = 0;
-
-			for(i = 0 ; i<4 ; i++) {
-				humidyTresholds[i] = root["humidity"][i];
-			}
-
-			int * enabledOutputs;
-			enabledOutputs = this->node.checkHumidity(humidyTresholds);
-
-			String humidityResponse = "[";
-
-			for(int i = 0 ; i<4 ; i++) {
-				humidityResponse += enabledOutputs[i];
-				if(i<3) {
-					humidityResponse += ",";
-				}
-			}
-
-			humidityResponse+="]";
-
-			free(enabledOutputs);
-
-
-			server.send(200, "application/json", humidityResponse);
-
-
-			//server.send(200, "application/json", response);
-			//return response;
-		}
-	}
-	else {
-		Serial.printf("[HTTP] GET... failed, error: %s\n", http.errorToString(httpCode).c_str());
-	}
-  });
 
 	this->initializeIO();
 	this->initializeWater();
