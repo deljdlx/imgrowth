@@ -49,7 +49,7 @@ class Node : public NodeMCU
 
 
 	ESP8266WebServer server;
-	DNSServer dnsServer;
+
 
 
 
@@ -100,18 +100,13 @@ class Node : public NodeMCU
 	public: void setSensor(DallasTemperature sensor);
 
 
-	//public: void wifiConnection(char* ssid, char* password);
-
-
-
-	public: void wifiConnect(void);
 
 	public: int getHumidity(int input);
 
+
+
 	public: float getTemperature(void);
 	public: float getLight(void);
-
-	public: void startHotspot(const char * ssid, const char * password);
 
 
 	public: void reset(void);

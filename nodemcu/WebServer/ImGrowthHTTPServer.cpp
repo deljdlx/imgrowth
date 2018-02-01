@@ -251,6 +251,16 @@ void ImGrowthHTTPServer::initialize(void)
 	}
   });
 
+  this->server.on("/node/gotoURL", [this](){
+		String url = this->server.arg("url");
+
+		Serial.println("Goto URL");
+		Serial.println(url);
+
+		String response = this->gotoURL(url);
+		server.send(200, "text/html", response);
+  });
+
 
   this->server.on("/node/declare", [this](){
 	this->declareServer();
@@ -332,12 +342,31 @@ void ImGrowthHTTPServer::initialize(void)
 
 	this->initializeIO();
 	this->initializeWater();
-
-
 	// on commence a ecouter les requetes venant de l'exterieur
 	this->server.begin();
 }
 
+
+String ImGrowthHTTPServer::gotoURL(String url) {
+	HTTPClient http;
+
+    String response = "";
+
+	Serial.println("Retrieving data : "+url);
+	http.begin(url);
+
+	int httpCode = http.GET();
+
+	if(httpCode > 0) {
+		if(httpCode == 200) {
+			response = http.getString();
+			return response;
+		}
+	}
+	else {
+		return response;
+	}
+}
 
 
 

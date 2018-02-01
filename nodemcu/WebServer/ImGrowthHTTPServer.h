@@ -54,6 +54,8 @@ class ImGrowthHTTPServer
 
 	public: String getData(void);
 
+	public: String gotoURL(String url);
+
 	public: void ping(void);
 
 

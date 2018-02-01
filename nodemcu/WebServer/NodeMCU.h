@@ -7,17 +7,20 @@
 #include <ESP8266HTTPClient.h>
 #include <ESP8266WiFi.h>
 #include <EEPROM.h>
+#include "./DNSServer.h"
 
+#include "Configuration.h"
 
 class NodeMCU
 {
 
 
-
+	public: Configuration configuration;
 	public : IPAddress myIP;
 
 	public : IPAddress hotspotIP;
 
+	public: DNSServer dnsServer;
 
 
 
@@ -28,6 +31,9 @@ class NodeMCU
 	public: bool wifiAutoConnection(const char* ssid, const char* password);
 	public: void saveWifiConfig(const char* ssid, const char* password);
 	public: bool connectFromSavedConfiguration();
+	public: void wifiConnect(void);
+
+	public: void startHotspot(const char * ssid, const char * password);
 
 };
 

@@ -1,6 +1,6 @@
 #include "NodeMCU.h"
 
-
+#include "./DNSServer.h"
 
 NodeMCU::NodeMCU() {
 
@@ -21,6 +21,59 @@ void NodeMCU::GPIOUp(void) {
 
 
 
+void NodeMCU::startHotspot(const char * ssid, const char * password) {
+
+
+
+	//WiFi.mode(WIFI_AP);
+	this->hotspotIP = WiFi.softAPIP();
+
+
+	Serial.print("\nAP IP address: "+this->configuration.hotspotSSID+"\n");
+	Serial.println(this->hotspotIP);
+
+
+
+	WiFi.softAPConfig(this->hotspotIP, this->hotspotIP, IPAddress(255, 255, 255, 0));
+
+	WiFi.softAP(
+		ssid
+		//,password
+	);
+
+
+
+
+
+	const byte DNS_PORT = 53;
+	this->dnsServer.setTTL(300);
+	// set which return code will be used for all other domains (e.g. sending
+	// ServerFailure instead of NonExistentDomain will reduce number of queries
+	// sent by clients)
+	// default is DNSReplyCode::NonExistentDomain
+	this->dnsServer.setErrorReplyCode(DNSReplyCode::ServerFailure);
+
+	// start DNS server for a specific domain name
+	this->dnsServer.start(DNS_PORT, "config.imgrowth", this->hotspotIP);
+
+
+}
+
+
+
+
+
+
+
+
+
+
+void NodeMCU::wifiConnect(void) {
+	this->wifiAutoConnection(
+		this->configuration.wifiSSID.c_str(),
+		this->configuration.wifiPassword.c_str()
+	);
+}
 
 
 
