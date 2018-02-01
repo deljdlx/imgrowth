@@ -85,6 +85,12 @@ String ImGrowthHTTPServer::getData(void) {
 	String response="{";
 
 
+	response += "\"version\":";
+	response += "\""+this->configuration.node_version+"\"";
+	response += ",";
+
+
+
 	String humidity0 = String(this->node.getHumidity(0));
 	String humidity1 = String(this->node.getHumidity(1));
 	String humidity2 = String(this->node.getHumidity(2));

@@ -4,9 +4,6 @@
 
 class Configuration
 {
-	//public: char* wifiSSID="imgrowth";
-	//public: char* wifiPassword="imgrowth";
-
 
 	public: int serialSpeed = 115200;
 
