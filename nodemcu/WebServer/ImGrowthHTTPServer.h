@@ -59,6 +59,10 @@ class ImGrowthHTTPServer
 
 
 
+	public: String formatResponse(String data);
+
+
+
 
 
 	public: void ping(void);

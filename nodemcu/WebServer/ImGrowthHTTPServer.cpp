@@ -82,12 +82,9 @@ String ImGrowthHTTPServer::declareServer(void) {
 String ImGrowthHTTPServer::getData(void) {
 
 
-	String response="{";
+	String data = "";
+	String response = "";
 
-
-	response += "\"version\":";
-	response += "\""+this->configuration.node_version+"\"";
-	response += ",";
 
 
 
@@ -98,37 +95,45 @@ String ImGrowthHTTPServer::getData(void) {
 
 	String temperature = String(this->node.getTemperature());
 
-
-
-
 	String light = String(this->node.getLight());
 
 
 
 
-	response=response+"\"humidity\": ["+
+	data = data+"\"humidity\": ["+
 		humidity0+","+
 		humidity1+","+
 		humidity2+","+
 		humidity3+
 	"]";
 
-	//response=response+humidity;
 
-	response=response+",\"temperature\":";
-	response=response+temperature;
+	data += ",\"temperature\":";
+	data += temperature;
 
-	response=response+",\"light\":";
-	response=response+light;
+	data += ",\"light\":";
+	data += light;
 
+	response = this->formatResponse(data);
 
-	response=response+"}";
 
 
 	return response;
 
 }
 
+
+String ImGrowthHTTPServer::formatResponse(String data)
+{
+	String response="{";
+	response += "\"version\":";
+	response += "\""+this->configuration.node_version+"\"";
+	response += ",";
+	response += data;
+	response=response+"}";
+	return response;
+
+}
 
 
 void ImGrowthHTTPServer::initialize(void)
