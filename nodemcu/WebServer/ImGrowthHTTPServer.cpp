@@ -126,9 +126,25 @@ String ImGrowthHTTPServer::getData(void) {
 String ImGrowthHTTPServer::formatResponse(String data)
 {
 	String response="{";
+
+	response += "\"id\":";
+	response += "\""+this->configuration.node_id+"\"";
+	response += ",";
+
 	response += "\"version\":";
 	response += "\""+this->configuration.node_version+"\"";
 	response += ",";
+
+
+
+	response += "\"mac\":";
+	response += "\""+WiFi.macAddress()+"\"";
+	response += ",";
+
+	response += "\"ip\":";
+	response += "\""+WiFi.localIP().toString()+"\"";
+	response += ",";
+
 	response += data;
 	response=response+"}";
 	return response;

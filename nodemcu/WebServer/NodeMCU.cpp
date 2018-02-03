@@ -1,9 +1,16 @@
 #include "NodeMCU.h"
 
+
 #include "./DNSServer.h"
 
 NodeMCU::NodeMCU() {
 
+
+}
+
+void NodeMCU::setSerialPinsToGPIO(void) {
+    pinMode(1, OUTPUT);
+    pinMode(3, OUTPUT);
 }
 
 void NodeMCU::setSerialPinsToGPIO(void) {
@@ -11,6 +18,8 @@ void NodeMCU::setSerialPinsToGPIO(void) {
     pinMode(3, OUTPUT);
 
 }
+
+
 
 
 void NodeMCU::GPIOUp(void) {

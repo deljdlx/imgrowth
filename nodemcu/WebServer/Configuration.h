@@ -5,6 +5,13 @@
 class Configuration
 {
 
+
+
+
+	public: String node_version="0.0.1";
+	public: String node_id = "000-000-000";
+
+
 	public: int serialSpeed = 115200;
 
 
@@ -45,9 +52,6 @@ class Configuration
 	public: int wateringDelay = 10000;
 
 
-
-
-	String node_version="0.0.1";
 	String declareURL="http://192.168.0.10/project/imgrowth-web/www/index.php/declare";
 
 	String configurationURL = "http://192.168.0.10/project/imgrowth-web/www/index.php/server/getConfiguration";
@@ -62,7 +66,7 @@ class Configuration
 	public: int pingInterval=60000;
 	public: int previousPingTime;
 
-	public: int globalDelay=100;
+	public: int globalDelay=10;
 
 };
 

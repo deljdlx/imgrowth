@@ -1,6 +1,10 @@
 #include <string>
 #include <OneWire.h>
 
+//#include <TimeLib.h>
+//#include <NtpClientLib.h>
+
+
 
 #include "./CD4051B.h"
 #include "./DallasTemperature.h"
@@ -39,6 +43,15 @@ void Node::initialize(void) {
 	this->setSerialPinsToGPIO();
 
 
+
+	//NTP.begin("pool.ntp.org", 1, true);
+	//NTP.setInterval(60);
+	//Serial.println(NTP.getTimeDateString ());
+
+
+
+
+
 	pinMode(this->configuration.analogInputPIN, INPUT);
 	pinMode(this->configuration.lightPIN, OUTPUT);
 
@@ -69,7 +82,7 @@ void Node::reset(void) {
 
 void Node::listen(void) {
 	this->dnsServer.processNextRequest();
-	this->irrigate();
+	//this->irrigate();
 
 }
 
