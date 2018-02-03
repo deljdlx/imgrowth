@@ -24,10 +24,6 @@ class Configuration
 
 	public: int humidyInterval = 60000;
 
-
-	public: int TEMPERATURE_PIN = D4;
-
-
 	public: int oneWirePin = D4;
 
 	public: int writePIN_0 = 14;
@@ -52,8 +48,7 @@ class Configuration
 	public: int wateringDelay = 10000;
 
 
-	String declareURL="http://192.168.0.10/project/imgrowth-web/www/index.php/declare";
-
+	String declareURL="http://192.168.0.10/project/imgrowth-web/www/index.php/node/register";
 	String configurationURL = "http://192.168.0.10/project/imgrowth-web/www/index.php/server/getConfiguration";
 
 	String node_dataURI="/node/getData";

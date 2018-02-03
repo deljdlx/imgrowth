@@ -13,12 +13,6 @@ void NodeMCU::setSerialPinsToGPIO(void) {
     pinMode(3, OUTPUT);
 }
 
-void NodeMCU::setSerialPinsToGPIO(void) {
-    pinMode(1, OUTPUT);
-    pinMode(3, OUTPUT);
-
-}
-
 
 
 

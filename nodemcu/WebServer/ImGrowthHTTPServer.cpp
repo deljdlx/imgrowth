@@ -49,11 +49,23 @@ void ImGrowthHTTPServer::setNode(Node node)
 String ImGrowthHTTPServer::declareServer(void) {
 	HTTPClient http;
 
-    String declareURL =
-    	this->configuration.declareURL +
-    	"?dataURI="+this->configuration.node_dataURI +
-    	"&nodeVersion="+this->configuration.node_version
-    ;
+
+	String declareURL = this->configuration.declareURL;
+
+	String data = this->getData();
+
+	http.begin(declareURL);
+	http.addHeader("Content-Type", "application/x-www-form-urlencoded");
+	http.POST("data="+data);
+	http.writeToStream(&Serial);
+	http.end();
+
+	return data;
+
+
+
+
+	/*
 
 
 	Serial.println("Sending data : "+declareURL);
@@ -74,6 +86,8 @@ String ImGrowthHTTPServer::declareServer(void) {
 	else {
 		Serial.printf("[HTTP] GET... failed, error: %s\n", http.errorToString(httpCode).c_str());
 	}
+
+	*/
 }
 
 
@@ -98,13 +112,21 @@ String ImGrowthHTTPServer::getData(void) {
 	String light = String(this->node.getLight());
 
 
-
-
 	data = data+"\"humidity\": ["+
-		humidity0+","+
-		humidity1+","+
-		humidity2+","+
-		humidity3+
+		""+String(this->node.getHumidity(0))+","+
+		""+String(this->node.getHumidity(1))+","+
+		""+String(this->node.getHumidity(2))+","+
+		""+String(this->node.getHumidity(3))+""+
+	"],";
+
+
+
+	data = data+"\"humidities\": ["+
+		"["+String(this->node.getHumidity(0))+","+String(this->node.getHumidity(0))+","+String(this->node.getHumidity(0))+","+String(this->node.getHumidity(0))+"],"+
+		"["+String(this->node.getHumidity(1))+","+String(this->node.getHumidity(1))+","+String(this->node.getHumidity(1))+","+String(this->node.getHumidity(1))+"],"+
+		"["+String(this->node.getHumidity(2))+","+String(this->node.getHumidity(2))+","+String(this->node.getHumidity(2))+","+String(this->node.getHumidity(2))+"],"+
+		"["+String(this->node.getHumidity(3))+","+String(this->node.getHumidity(3))+","+String(this->node.getHumidity(3))+","+String(this->node.getHumidity(3))+"]"+
+
 	"]";
 
 
@@ -168,6 +190,12 @@ void ImGrowthHTTPServer::initialize(void)
 		this->server.send(200, "application/json", response);
 	});
 
+
+
+	this->server.on("/node/declare", [this](){
+		server.send(200, "text/plain", "Registering node");
+		this->declareServer();
+	});
 
 
 	this->server.on("/node/lightOn", [this](){
