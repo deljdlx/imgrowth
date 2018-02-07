@@ -6,7 +6,7 @@
 #include <Adafruit_Sensor.h>
 #include <Adafruit_TSL2561_U.h>
 
-
+#include <string>
 
 #include <OneWire.h>
 #include "./DallasTemperature.h"
@@ -31,6 +31,9 @@ class Node : public NodeMCU
 {
 
 
+	public: unsigned long postDatatLastTime;
+	public: unsigned long postDataDelay = 10000;
+
 
 	public: unsigned long humidityLastTime0;
 	public: unsigned long humidityLastTime1;
@@ -38,6 +41,7 @@ class Node : public NodeMCU
 	public: unsigned long humidityLastTime3;
 
 	public: unsigned long humidityCheckDelay = 10000;
+
 	public: int humidityTresholds[4];
 
 
@@ -111,6 +115,12 @@ class Node : public NodeMCU
 	public: bool doWatering(int input);
 	public: void irrigate(void);
 
+	public: String getData(void);
+	public: String postData(void);
+
+	public: String post(String url, String data);
+
+	public: String formatResponse(String data);
 
 
 };

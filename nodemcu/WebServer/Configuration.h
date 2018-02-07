@@ -10,6 +10,8 @@ class Configuration
 
 	public: String node_version="0.0.1";
 	public: String node_id = "000-000-000";
+	public: String firmware = "0.0.1";
+
 
 
 	public: int serialSpeed = 115200;
@@ -23,6 +25,8 @@ class Configuration
 
 
 	public: int humidyInterval = 60000;
+	public: int humidityMesureCount = 10;
+
 
 	public: int oneWirePin = D4;
 
@@ -49,7 +53,11 @@ class Configuration
 
 
 	String declareURL="http://192.168.0.10/project/imgrowth-web/www/index.php/node/register";
+
 	String configurationURL = "http://192.168.0.10/project/imgrowth-web/www/index.php/server/getConfiguration";
+
+	String sendDataURL = "http://192.168.0.10/project/imgrowth-web/www/index.php/server/registerdata";
+
 
 	String node_dataURI="/node/getData";
 

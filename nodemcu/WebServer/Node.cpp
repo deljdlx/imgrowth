@@ -39,6 +39,8 @@ Node::Node() {
 
 void Node::initialize(void) {
 
+	Serial.println("\nInitializing Node");
+
 
 	this->setSerialPinsToGPIO();
 
@@ -52,23 +54,30 @@ void Node::initialize(void) {
 
 
 
+	Serial.println("\nInitializing Pins");
 	pinMode(this->configuration.analogInputPIN, INPUT);
 	pinMode(this->configuration.lightPIN, OUTPUT);
 
 
-	/*
+
 	this->wifiAutoConnection(
 		this->configuration.wifiSSID.c_str(),
 		this->configuration.wifiPassword.c_str()
 	);
-	*/
 
 
 
+
+	Serial.println("\nStarting hotspot");
+
+	/*
 	this->startHotspot(
 		this->configuration.hotspotSSID.c_str()
 		,this->configuration.hotspotPassword.c_str()
 	);
+	*/
+
+	Serial.println("\nHotspot started");
 }
 
 
@@ -81,10 +90,148 @@ void Node::reset(void) {
 
 
 void Node::listen(void) {
+
+	unsigned long current =  millis();
+
 	this->dnsServer.processNextRequest();
-	//this->irrigate();
+
+	if(current - this->postDatatLastTime > this->postDataDelay) {
+		this->postData();
+		this->postDatatLastTime = millis();
+	}
+
+	this->irrigate();
 
 }
+
+
+String Node::postData(void) {
+
+	String response;
+
+	response = this->post(
+		this->configuration.sendDataURL,
+		this->formatResponse(this->getData())
+	);
+
+	return response;
+}
+
+
+
+
+String Node::post(String url, String data) {
+	HTTPClient http;
+	http.begin(url);
+	http.addHeader("Content-Type", "application/x-www-form-urlencoded");
+	http.POST("data="+data);
+	String response = http.getString();
+	http.writeToStream(&Serial);
+	http.end();
+	return response;
+}
+
+
+
+
+
+
+String Node::getData(void) {
+
+
+	String data = "{";
+	String response = "";
+
+
+
+	String temperature = String(this->getTemperature());
+
+	String light = String(this->getLight());
+
+
+	data +="\"humidity\": [";
+	for(int i = 0; i < 4; i++) {
+		data += ""+String(this->getHumidity(i))+",";
+	}
+
+	data = data.substring(0, data.length()-1);
+	data +="],";
+
+
+	data += "\"humidities\":[";
+
+
+
+
+	for(int i = 0 ; i<4 ; i++) {
+		data += "[";
+
+		for(int j = 0 ; j<this->configuration.humidityMesureCount; j++) {
+			data += String(this->getHumidity(i))+",";
+		}
+		data = data.substring(0, data.length()-1);
+		data +="],";
+	}
+
+	data = data.substring(0, data.length()-1);
+	data +="]";
+
+
+	data += ",\"temperature\":";
+	data += temperature;
+
+	data += ",\"light\":";
+	data += light;
+
+	data += "}";
+
+	return data;
+
+}
+
+
+
+String Node::formatResponse(String data)
+{
+	String response="{";
+
+	response += "\"meta\": {";
+		response += "\"id\":";
+		response += "\""+this->configuration.node_id+"\"";
+		response += ",";
+
+		response += "\"version\":";
+		response += "\""+this->configuration.node_version+"\"";
+		response += ",";
+
+		response += "\"mac\":";
+		response += "\""+WiFi.macAddress()+"\"";
+		response += ",";
+
+		response += "\"ip\":";
+		response += "\""+WiFi.localIP().toString()+"\"";
+		response += ",";
+
+		response += "\"firmware\":";
+		response += "\""+this->configuration.firmware+"\"";
+	response += "},";
+
+	response += "\"data\": ";
+		response += data;
+	response += "}";
+
+	return response;
+
+}
+
+
+
+
+
+
+
+
+
 
 
 void Node::irrigate(void) {

@@ -46,7 +46,15 @@ void ImGrowthHTTPServer::setNode(Node node)
 
 
 
+
+
 String ImGrowthHTTPServer::declareServer(void) {
+
+	return this->node.post(
+		this->configuration.declareURL,
+		this->getData()
+	);
+
 	HTTPClient http;
 
 
@@ -57,10 +65,13 @@ String ImGrowthHTTPServer::declareServer(void) {
 	http.begin(declareURL);
 	http.addHeader("Content-Type", "application/x-www-form-urlencoded");
 	http.POST("data="+data);
+
+	String response = http.getString();
+
 	http.writeToStream(&Serial);
 	http.end();
 
-	return data;
+	return response;
 
 
 
@@ -96,50 +107,10 @@ String ImGrowthHTTPServer::declareServer(void) {
 String ImGrowthHTTPServer::getData(void) {
 
 
-	String data = "";
+	String data = this->node.getData();
 	String response = "";
 
-
-
-
-	String humidity0 = String(this->node.getHumidity(0));
-	String humidity1 = String(this->node.getHumidity(1));
-	String humidity2 = String(this->node.getHumidity(2));
-	String humidity3 = String(this->node.getHumidity(3));
-
-	String temperature = String(this->node.getTemperature());
-
-	String light = String(this->node.getLight());
-
-
-	data = data+"\"humidity\": ["+
-		""+String(this->node.getHumidity(0))+","+
-		""+String(this->node.getHumidity(1))+","+
-		""+String(this->node.getHumidity(2))+","+
-		""+String(this->node.getHumidity(3))+""+
-	"],";
-
-
-
-	data = data+"\"humidities\": ["+
-		"["+String(this->node.getHumidity(0))+","+String(this->node.getHumidity(0))+","+String(this->node.getHumidity(0))+","+String(this->node.getHumidity(0))+"],"+
-		"["+String(this->node.getHumidity(1))+","+String(this->node.getHumidity(1))+","+String(this->node.getHumidity(1))+","+String(this->node.getHumidity(1))+"],"+
-		"["+String(this->node.getHumidity(2))+","+String(this->node.getHumidity(2))+","+String(this->node.getHumidity(2))+","+String(this->node.getHumidity(2))+"],"+
-		"["+String(this->node.getHumidity(3))+","+String(this->node.getHumidity(3))+","+String(this->node.getHumidity(3))+","+String(this->node.getHumidity(3))+"]"+
-
-	"]";
-
-
-	data += ",\"temperature\":";
-	data += temperature;
-
-	data += ",\"light\":";
-	data += light;
-
 	response = this->formatResponse(data);
-
-
-
 	return response;
 
 }
@@ -149,26 +120,31 @@ String ImGrowthHTTPServer::formatResponse(String data)
 {
 	String response="{";
 
-	response += "\"id\":";
-	response += "\""+this->configuration.node_id+"\"";
-	response += ",";
+	response += "\"meta\": {";
+		response += "\"id\":";
+		response += "\""+this->configuration.node_id+"\"";
+		response += ",";
 
-	response += "\"version\":";
-	response += "\""+this->configuration.node_version+"\"";
-	response += ",";
+		response += "\"version\":";
+		response += "\""+this->configuration.node_version+"\"";
+		response += ",";
 
+		response += "\"mac\":";
+		response += "\""+WiFi.macAddress()+"\"";
+		response += ",";
 
+		response += "\"ip\":";
+		response += "\""+WiFi.localIP().toString()+"\"";
+		response += ",";
 
-	response += "\"mac\":";
-	response += "\""+WiFi.macAddress()+"\"";
-	response += ",";
+		response += "\"firmware\":";
+		response += "\""+this->configuration.firmware+"\"";
+	response += "},";
 
-	response += "\"ip\":";
-	response += "\""+WiFi.localIP().toString()+"\"";
-	response += ",";
+	response += "\"data\": ";
+		response += data;
+	response += "}";
 
-	response += data;
-	response=response+"}";
 	return response;
 
 }
@@ -193,9 +169,15 @@ void ImGrowthHTTPServer::initialize(void)
 
 
 	this->server.on("/node/declare", [this](){
-		server.send(200, "text/plain", "Registering node");
-		this->declareServer();
+		String response = this->declareServer();
+		server.send(200, "application/json", response);
 	});
+
+	this->server.on("/node/postData", [this](){
+		String response = this->node.postData();
+		server.send(200, "application/json", response);
+	});
+
 
 
 	this->server.on("/node/lightOn", [this](){
