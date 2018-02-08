@@ -60,7 +60,10 @@ void Node::initialize(void) {
 
 
 
-	this->wifiAutoConnection(
+
+
+
+	bool wifiConnection = this->wifiAutoConnection(
 		this->configuration.wifiSSID.c_str(),
 		this->configuration.wifiPassword.c_str()
 	);
@@ -68,16 +71,17 @@ void Node::initialize(void) {
 
 
 
-	Serial.println("\nStarting hotspot");
 
-	/*
-	this->startHotspot(
-		this->configuration.hotspotSSID.c_str()
-		,this->configuration.hotspotPassword.c_str()
-	);
-	*/
+	if(!wifiConnection) {
+		Serial.println("\nStarting hotspot");
 
-	Serial.println("\nHotspot started");
+		this->startHotspot(
+			this->configuration.hotspotSSID.c_str()
+			,this->configuration.hotspotPassword.c_str()
+		);
+		Serial.println("\nHotspot started");
+	}
+
 }
 
 
@@ -95,7 +99,7 @@ void Node::listen(void) {
 
 	this->dnsServer.processNextRequest();
 
-	if(current - this->postDatatLastTime > this->postDataDelay) {
+	if(current - this->postDatatLastTime > this->configuration.postDataDelay) {
 		this->postData();
 		this->postDatatLastTime = millis();
 	}
@@ -167,6 +171,7 @@ String Node::getData(void) {
 		data += "[";
 
 		for(int j = 0 ; j<this->configuration.humidityMesureCount; j++) {
+
 			data += String(this->getHumidity(i))+",";
 		}
 		data = data.substring(0, data.length()-1);

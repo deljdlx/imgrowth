@@ -385,6 +385,13 @@ bool ImGrowthHTTPServer::loadConfiguration(void) {
 				this->node.humidityTresholds[i] = root["humidity"][i];
 			}
 
+			/*
+			if((unsigned long) root["postDataDelay"]) {
+				this->configuration.postDataDelay = (unsigned long) root["postDataDelay"];
+			}
+			*/
+
+
 			return true;
 		}
 	}

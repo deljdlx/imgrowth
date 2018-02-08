@@ -28,7 +28,7 @@ void NodeMCU::startHotspot(const char * ssid, const char * password) {
 
 
 
-	//WiFi.mode(WIFI_AP);
+	WiFi.mode(WIFI_AP);
 	this->hotspotIP = WiFi.softAPIP();
 
 
@@ -152,9 +152,15 @@ bool NodeMCU::wifiConnection(const char* ssid, const char* password) {
 
 	Serial.println("");
 
+  	WiFi.mode(WIFI_STA);
+
+  	Serial.println("Wifi mode configured");
 
 	// on demande la connexion au WiFi
 	WiFi.begin(ssid, password);
+	Serial.println("Wifi began");
+
+
 	// on attend d'etre connecte au WiFi avant de continuer
 	int loop = 0;
 	while (WiFi.status() != WL_CONNECTED) {
@@ -192,33 +198,37 @@ bool NodeMCU::wifiAutoConnection(const char* ssid, const char* password) {
 	}
 
 	if(this->wifiConnection(ssid, password)) {
-		WiFi.mode(WIFI_AP_STA);
 		return true;
 	}
-
-
 
 	if(this->connectFromSavedConfiguration()) {
-		WiFi.mode(WIFI_AP_STA);
 		return true;
 	}
 
-  Serial.println("\nPress WPS button on your router ...");
-  delay(5000);
 
-  Serial.println("WPS config start");
-  // WPS works in STA (Station mode) only -> not working in WIFI_AP_STA !!!
+	Serial.println("\nPress WPS button on your router ...");
+	delay(5000);
 
+	Serial.println("WPS config start");
+
+	return this->wifiWPSConnection();
+
+  return false;
+}
+
+
+bool NodeMCU::wifiWPSConnection() {
+
+	// WPS works in STA (Station mode) only -> not working in WIFI_AP_STA !!!
   WiFi.mode(WIFI_STA);
 
+  bool wpsSuccess = WiFi.beginWPSConfig();
 
-  delay(1000);
-  WiFi.begin("foobar",""); // make a failed connection
   while (WiFi.status() == WL_DISCONNECTED) {
     delay(500);
     Serial.print(".");
   }
-  bool wpsSuccess = WiFi.beginWPSConfig();
+
   if(wpsSuccess) {
       // Well this means not always success :-/ in case of a timeout we have an empty ssid
       String newSSID = WiFi.SSID();
@@ -240,5 +250,6 @@ bool NodeMCU::wifiAutoConnection(const char* ssid, const char* password) {
   }
 
   return false;
+
 }
 

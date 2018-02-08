@@ -27,6 +27,8 @@ class Configuration
 	public: int humidyInterval = 60000;
 	public: int humidityMesureCount = 10;
 
+	public: unsigned long postDataDelay = 600000;
+
 
 	public: int oneWirePin = D4;
 

@@ -32,7 +32,7 @@ class Node : public NodeMCU
 
 
 	public: unsigned long postDatatLastTime;
-	public: unsigned long postDataDelay = 10000;
+	public: unsigned long postDataDelay = 60000;
 
 
 	public: unsigned long humidityLastTime0;

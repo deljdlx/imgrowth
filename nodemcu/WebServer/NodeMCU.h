@@ -37,6 +37,10 @@ class NodeMCU
 	public: bool connectFromSavedConfiguration();
 	public: void wifiConnect(void);
 
+
+	public: bool wifiWPSConnection();
+
+
 	public: void startHotspot(const char * ssid, const char * password);
 
 };
