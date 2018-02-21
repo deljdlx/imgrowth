@@ -28,8 +28,18 @@ void NodeMCU::startHotspot(const char * ssid, const char * password) {
 
 
 
-	WiFi.mode(WIFI_AP);
+
+	Serial.println("Setting mode Wifi AP");
+
+	//WiFi.mode(WIFI_AP);
+
+	Serial.println("Wifi AP ok");
+
+
+	Serial.println("Starting AP");
 	this->hotspotIP = WiFi.softAPIP();
+	Serial.println("AP OK");
+
 
 
 	Serial.print("\nAP IP address: "+this->configuration.hotspotSSID+"\n");
@@ -59,7 +69,6 @@ void NodeMCU::startHotspot(const char * ssid, const char * password) {
 	// start DNS server for a specific domain name
 	this->dnsServer.start(DNS_PORT, "config.imgrowth", this->hotspotIP);
 
-
 }
 
 
@@ -88,26 +97,34 @@ void NodeMCU::wifiConnect(void) {
 bool NodeMCU::connectFromSavedConfiguration() {
 
 /* Don't set this wifi credentials. They are configurated at runtime and stored on EEPROM */
+
+
 	char ssid[32] = "";
 	char password[32] = "";
 
 
-  EEPROM.begin(512);
-  EEPROM.get(0, ssid);
-  EEPROM.get(0+sizeof(ssid), password);
-  char ok[2+1];
-  EEPROM.get(0+sizeof(ssid)+sizeof(password), ok);
-  EEPROM.end();
+	EEPROM.begin(512);
+	EEPROM.get(0, ssid);
+	EEPROM.get(0+sizeof(ssid), password);
+	char ok[2+1];
+	EEPROM.get(0+sizeof(ssid)+sizeof(password), ok);
+	EEPROM.end();
 
-  if (String(ok) != String("OK")) {
-    ssid[0] = 0;
-    password[0] = 0;
-  }
-  Serial.println("Recovered credentials:");
-  Serial.println(ssid);
-  Serial.println(strlen(password)>0? password :"<no password>");
 
-	return this->wifiConnection(ssid, password);
+	const char*  ssid2 = "biniou";
+	const char*  password2 = "16641664";
+
+	//String containerSSID = ssid;
+	//String containerPassword = password;
+
+	//return this->wifiConnection(containerSSID.c_str(), containerPassword.c_str());
+
+	return this->wifiConnection(ssid2, password2);
+
+
+
+
+	return false;
 
 }
 
@@ -145,29 +162,36 @@ bool NodeMCU::wifiConnection(const char* ssid, const char* password) {
 	Serial.println("Trying connection");
 
 	Serial.print("SSID : ");
-	Serial.println(ssid);
 
-	Serial.print("Password : ");
-	Serial.println(password);
+	Serial.print("\"");
+	Serial.print(ssid);
+	Serial.print("\"");
 
 	Serial.println("");
 
-  	WiFi.mode(WIFI_STA);
 
-  	Serial.println("Wifi mode configured");
+	Serial.print("Password : ");
+	Serial.print("\"");
+	Serial.print(password);
+	Serial.print("\"");
+
+	Serial.println("");
+
+	delay(1000);
 
 	// on demande la connexion au WiFi
 	WiFi.begin(ssid, password);
-	Serial.println("Wifi began");
+	Serial.println("Waiting wifi");
 
 
 	// on attend d'etre connecte au WiFi avant de continuer
 	int loop = 0;
+
 	while (WiFi.status() != WL_CONNECTED) {
-		delay(500);
+		delay(1000);
 		Serial.print(".");
 		loop++;
-		if(loop>20) {
+		if(loop>40) {
 			Serial.println("");
 			Serial.println("Connection failed");
 			return false;
@@ -192,42 +216,66 @@ bool NodeMCU::wifiConnection(const char* ssid, const char* password) {
 bool NodeMCU::wifiAutoConnection(const char* ssid, const char* password) {
 
 
+	// WPS works in STA (Station mode) only -> not working in WIFI_AP_STA !!!
+	WiFi.persistent(false);
+
+  	//WiFi.mode(WIFI_STA);
+
+  	Serial.println("Wifi mode configured to STA");
+
+
+//*
+	Serial.println("Trying connection from parameters");
+	if(this->wifiConnection(ssid, password)) {
+		return true;
+	}
+//*/
+
+
+	/*
 	if(WiFi.status() != WL_DISCONNECTED) {
 		Serial.println("Wifi disconnection");
 		WiFi.disconnect();
 	}
+	*/
 
-	if(this->wifiConnection(ssid, password)) {
-		return true;
-	}
 
+	/*
+	Serial.println("Trying connection from EEPROM");
 	if(this->connectFromSavedConfiguration()) {
+		Serial.println("Connection from EEPROM success");
 		return true;
 	}
+	//*/
+
 
 
 	Serial.println("\nPress WPS button on your router ...");
 	delay(5000);
 
-	Serial.println("WPS config start");
+
 
 	return this->wifiWPSConnection();
 
-  return false;
+	return false;
 }
 
 
 bool NodeMCU::wifiWPSConnection() {
 
-	// WPS works in STA (Station mode) only -> not working in WIFI_AP_STA !!!
-  WiFi.mode(WIFI_STA);
+	Serial.println("WPS config start");
 
-  bool wpsSuccess = WiFi.beginWPSConfig();
 
-  while (WiFi.status() == WL_DISCONNECTED) {
-    delay(500);
-    Serial.print(".");
-  }
+
+
+  	bool wpsSuccess = WiFi.beginWPSConfig();
+
+	  while (WiFi.status() == WL_DISCONNECTED) {
+		delay(500);
+		Serial.print("Waiting wps");
+	}
+
+
 
   if(wpsSuccess) {
       // Well this means not always success :-/ in case of a timeout we have an empty ssid
@@ -249,7 +297,8 @@ bool NodeMCU::wifiWPSConnection() {
       }
   }
 
-  return false;
+	Serial.print("WPS failed");
+	return false;
 
 }
 

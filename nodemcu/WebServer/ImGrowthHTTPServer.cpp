@@ -153,7 +153,7 @@ String ImGrowthHTTPServer::formatResponse(String data)
 void ImGrowthHTTPServer::initialize(void)
 {
 
-	this->node.initialize();
+	//this->node.initialize();
 
 
 

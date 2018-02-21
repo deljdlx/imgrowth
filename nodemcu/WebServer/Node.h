@@ -13,6 +13,7 @@
 
 
 #include "./CD4051B.h"
+#include "./SN74HC595N.h"
 
 
 
@@ -64,11 +65,19 @@ class Node : public NodeMCU
 
 
 
+	SN74HC595N shiftRegister = SN74HC595N(
+		configuration.registerDataPin,
+		configuration.registerLatchPin,
+		configuration.registerClockPin
+	);
+
+
 	CD4051B outputMutiplexer = CD4051B(
 		configuration.writePIN_0,
 		configuration.writePIN_1,
 		configuration.writePIN_2
 	);
+
 	CD4051B  inputMutiplexer = CD4051B(
 		configuration.readPIN_0,
 		configuration.readPIN_1,
@@ -82,6 +91,9 @@ class Node : public NodeMCU
 
 
 	public: Node(void);
+
+
+	public: void writeToRegister(int registre[8]);
 
 
 	public: int enableInput(int input);

@@ -39,12 +39,12 @@ Node::Node() {
 
 void Node::initialize(void) {
 
+	bool wifiConnection = false;
+
 	Serial.println("\nInitializing Node");
 
 
-	this->setSerialPinsToGPIO();
-
-
+	//this->setSerialPinsToGPIO();
 
 	//NTP.begin("pool.ntp.org", 1, true);
 	//NTP.setInterval(60);
@@ -55,6 +55,7 @@ void Node::initialize(void) {
 
 
 	Serial.println("\nInitializing Pins");
+
 	pinMode(this->configuration.analogInputPIN, INPUT);
 	pinMode(this->configuration.lightPIN, OUTPUT);
 
@@ -62,12 +63,10 @@ void Node::initialize(void) {
 
 
 
-
-	bool wifiConnection = this->wifiAutoConnection(
+	wifiConnection = this->wifiAutoConnection(
 		this->configuration.wifiSSID.c_str(),
 		this->configuration.wifiPassword.c_str()
 	);
-
 
 
 
@@ -82,11 +81,18 @@ void Node::initialize(void) {
 		Serial.println("\nHotspot started");
 	}
 
+
 }
 
 
 void Node::reset(void) {
 	this->enableOutput(this->configuration.resetOutput);
+}
+
+
+void Node::writeToRegister(int registre[8]) {
+	this->shiftRegister.set(registre);
+	this->shiftRegister.send();
 }
 
 

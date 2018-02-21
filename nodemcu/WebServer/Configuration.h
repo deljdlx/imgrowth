@@ -14,6 +14,9 @@ class Configuration
 
 
 
+	public: int globalDelay=1000;
+
+
 	public: int serialSpeed = 115200;
 
 
@@ -35,6 +38,11 @@ class Configuration
 	public: int writePIN_0 = 14;
 	public: int writePIN_1 = 12;
 	public: int writePIN_2 = 13;
+
+	public: int registerDataPin = 13;
+	public: int registerLatchPin = 12;
+	public: int registerClockPin = 14;
+
 
 	public:  int resetOutput = 7;
 
@@ -67,11 +75,12 @@ class Configuration
 	public: String hotspotSSID ="imGrowthConfig";
 	public: String hotspotPassword ="imGrowthConfig";
 
+	public: const char* hotspotSSID2 ="imGrowthConfig";
+	public: const char* hotspotPassword2 ="imGrowthConfig";
+
 
 	public: int pingInterval=60000;
 	public: int previousPingTime;
-
-	public: int globalDelay=10;
 
 };
 
